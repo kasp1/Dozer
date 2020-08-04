@@ -1,6 +1,56 @@
-# dozer
+# Dozer Simple CI/CD Runner
 
-> Simple CI/CD Runner
+> Simple continuous integration runner.
+
+Useful if:
+- You don't have your own server existing cloud CI/CD options seem like an overkill.
+- Existing cloud CI/CD options are not suitable for some reason (e.g. too hardware demanding runs).
+- You want to use command line tools that are hard to install over command line.
+- Your environment is already set up and you want save time installing all tools on each CI/CD runs.
+- You want to develop and test your CI/CD steps on your localhost before uploading the scripts to a cloud CI/CD.
+
+<a href="https://www.buymeacoffee.com/transhuma" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-green.png" alt="Buy Me A Coffee" style="height: 51px !important;width: 217px !important;" ></a>
+
+## Quick Start
+
+### Create CI/CD workflow
+
+```yaml
+runtimeDirectory: C:/somewhere # optional, default: current workding directory
+
+steps:
+- displayName: 'Print Node Version' # any display name
+  exec: node # path to the executable, try absolute path if things get screwed
+  args:
+    - -v
+
+- displayName: 'Another step'
+  exec: C:/Program Files/Java/jdk1.8.0_211/bin/java.exe
+  args:
+    - -version
+
+- displayName: 'Gist Step' # This step automatically downloads the mentioned code and saves it under the temporary directory.
+  exec: node
+  code: https://gist.githubusercontent.com/kasp1/9efbc3afc32783d34a903aebe1d3b734/raw/56ae650b3e80db7c5072af67965f94587158b243/bulldozer-create-CI_NODE_VERSION.js
+  args:
+    - ${TMP}/bulldozer-create-CI_NODE_VERSION.js
+```
+
+### Run Dozer
+
+```bash
+dozer path/to/yaml-file [--gui]
+```
+
+## Install Dozer
+
+[Get the latest release](https://github.com/kasp1/Dozer/releases/) and run it as an Administrator.
+
+## Support
+
+Create issues or send email to k@e0.cz
+
+## Contribute
 
 #### Build Setup
 
