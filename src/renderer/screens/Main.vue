@@ -86,11 +86,16 @@
     padding: 0;
     margin: 0;
     overflow-y: hidden;
+    font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+  }
+
+  pre {
+    margin: 0;
   }
 
   #side {
     width: 200px;
-    height: 100vh;
+    height: calc(100vh - 30px);
     box-sizing: border-box;
     background-color: #252526;
     overflow-x: hidden;
@@ -105,7 +110,7 @@
 
   #output {
     width: calc(100vw - 200px);
-    height: 100vh;
+    height: calc(100vh - 30px);
     box-sizing: border-box;
   }
 
@@ -123,7 +128,6 @@
     white-space: pre-wrap;
     word-wrap: break-word;
     box-sizing: border-box;
-    padding-bottom: 16px;
   }
 
   #steps {
