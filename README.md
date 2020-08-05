@@ -9,7 +9,7 @@ Useful if:
 - Your environment is already set up and you want save time installing all tools on each CI/CD runs.
 - You want to develop and test your CI/CD steps on your localhost before uploading the scripts to a cloud CI/CD.
 
-<a href="https://www.buymeacoffee.com/transhuma" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-green.png" alt="Buy Me A Coffee" style="height: 51px !important;width: 217px !important;" ></a>
+[<img src="https://cdn.buymeacoffee.com/buttons/default-green.png" alt="Buy Me A Coffee" width="217">](https://www.buymeacoffee.com/transhuma)
 
 The GUI window is optional.
 
@@ -18,6 +18,8 @@ The GUI window is optional.
 ## Quick Start
 
 ### Create CI/CD workflow 
+
+And save it as a YAML file in your project's directory, for example **ci.yaml**:
 
 ```yaml
 runtimeDirectory: C:/somewhere # optional, default: current workding directory
@@ -42,9 +44,13 @@ steps:
 
 ### Run Dozer
 
+Then in your project's directory, run the following command:
+
 ```bash
-dozer path/to/yaml-file [--gui]
+dozer ci.yaml # --gui
 ```
+
+Remove the hash if you want Dozer to display the GUI as well.
 
 ## Install Dozer
 
@@ -55,6 +61,8 @@ dozer path/to/yaml-file [--gui]
 Create issues or send email to k@e0.cz
 
 ## Contribute
+
+Clone the repository and change the line `120` at `.electron-vue/dev-runner.js` to your test YAML file.
 
 #### Build Setup
 
