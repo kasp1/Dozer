@@ -148,7 +148,7 @@ let runner = {
     runner.vueAttachValueToArray('statuses', 'progress')
 
     // change working directory if set
-    let options = {}
+    let options = { shell: true }
 
     if (step.workingDirectory) {
       if (fs.existsSync(step.workingDirectory)) {
@@ -217,14 +217,9 @@ let runner = {
     // run the exec
     runner.log('Executing step', step.displayName, ':', exec, step.args.join(' '))
 
-    let proc
+    let proc = spawn(`"` + exec + `"`, step.args, { windowsVerbatimArguments: true, ...options })
 
-    if (exec.substr(exec.length - 4) !== '.bat') {
-      proc = spawn(exec, step.args, options)
-    } else {
-      runner.log('Treating the executable as a .bat file.')
-      proc = spawn('cmd.exe', [ '/s', '/c', exec, ...step.args ], options)
-    }
+    console.log(proc.spawnargs)
 
     proc.on('error', (err) => {
       console.log(err)
