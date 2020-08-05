@@ -1,7 +1,7 @@
 <template>
   <div id="wrapper">
-    <div id="side" class="is-info is-light">
-      <div id="steps">
+    <div id="side">
+      <div id="steps" class="section">
         <a 
           class="step" 
           v-for="(title, step) in steps"
@@ -11,7 +11,7 @@
             <span :data-indicator="indicator(step)">{{ indicator(step) }}</span> {{ title }}
         </a>
       </div>
-      <div id="environment">
+      <div id="environment" class="section">
         <span 
           v-for="(value, variable) in vars"
           :key="variable"
@@ -92,11 +92,15 @@
     width: 200px;
     height: 100vh;
     box-sizing: border-box;
-    background-color: #101010;
-    padding: 5px 10px;
+    background-color: #252526;
     overflow-x: hidden;
     overflow-y: auto;
     float: left;
+  }
+
+  .section {
+    border-bottom: 1px solid #3e3e3f;
+    padding: 5px 10px;
   }
 
   #output {
@@ -106,23 +110,25 @@
   }
 
   #environment {
-    margin-top: 40px;
     font-size: 11px;
     color: #666666;
   }
 
   .terminal {
-    background-color: black;
-    color: white;
+    background-color: #1e1e1e;
+    color: #bbbbbb;
     padding: 5px 10px;
     overflow: auto;
     font-size: 11px;
     white-space: pre-wrap;
     word-wrap: break-word;
+    box-sizing: border-box;
+    padding-bottom: 16px;
   }
 
   #steps {
     margin-top: 10px;
+    padding-bottom: 10px;
   }
 
   .step {
@@ -146,7 +152,42 @@
   .step span[data-indicator="●"] { color: white; }
 
   .var {
+    color: #bbbbbb;
     display: block;
     margin-bottom: 6px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-button {
+    width: 0px;
+    height: 0px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #3e3e3f;
+    border: 1px none #ffffff;
+    border-radius: 0px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #5e5e5f;
+  }
+  ::-webkit-scrollbar-thumb:active {
+    background: #5e5e5f;
+  }
+  ::-webkit-scrollbar-track {
+    background: #2e2e2f;
+    border: 0px none #ffffff;
+    border-radius: 0px;
+  }
+  ::-webkit-scrollbar-track:hover {
+    background: #2e2e2f;
+  }
+  ::-webkit-scrollbar-track:active {
+    background: #333333;
+  }
+  ::-webkit-scrollbar-corner {
+    background: transparent;
   }
 </style>

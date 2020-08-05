@@ -70,7 +70,8 @@ let runner = {
       webPreferences: {
         nodeIntegration: true,
         nodeIntegrationInWorker: true
-      }
+      },
+      frame: false
     })
 
     runner.window.setMenu(null)
