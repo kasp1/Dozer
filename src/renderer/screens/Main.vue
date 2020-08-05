@@ -8,8 +8,8 @@
           :key="step"
           @click="selectedStep = step"
           :data-active="step == selectedStep ? true : false">
-            {{ indicator(step) }} {{ title }}
-          </a>
+            <span :data-indicator="indicator(step)">{{ indicator(step) }}</span> {{ title }}
+        </a>
       </div>
       <div id="environment">
         <span 
@@ -57,7 +57,7 @@
           switch (this.statuses[step]) {
             case 'success': return '✔'
             case 'progress': return '➔'
-            case 'failure': return '⭕'
+            case 'failure': return '✘'
           }
         }
 
@@ -106,7 +106,7 @@
   }
 
   #environment {
-    margin-top: 10px;
+    margin-top: 40px;
     font-size: 11px;
     color: #666666;
   }
@@ -132,9 +132,18 @@
     color: #bbbbbb;
   }
 
+  .step:hover {
+    color: #ffffff;
+  }
+
   .step[data-active="true"] {
     color: #ffffff;
   }
+
+  .step span[data-indicator="✔"] { color: greenyellow; }
+  .step span[data-indicator="➔"] { color: lightskyblue; }
+  .step span[data-indicator="✘"] { color: orangered; }
+  .step span[data-indicator="●"] { color: white; }
 
   .var {
     display: block;
