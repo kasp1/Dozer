@@ -11,9 +11,13 @@ Useful if:
 
 <a href="https://www.buymeacoffee.com/transhuma" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-green.png" alt="Buy Me A Coffee" style="height: 51px !important;width: 217px !important;" ></a>
 
+The GUI window is optional.
+
+![](screenshots/1.png)
+
 ## Quick Start
 
-### Create CI/CD workflow
+### Create CI/CD workflow 
 
 ```yaml
 runtimeDirectory: C:/somewhere # optional, default: current workding directory

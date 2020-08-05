@@ -114,6 +114,7 @@ let runner = {
 
   vueAppendOutput (index, value) {
     if (runner.gui) {
+      value = value.toString()
       value = value.replace(/`/g, '\'')
       value = value.replace(/\\/g, '/')
       runner.window.webContents.executeJavaScript('window.vueMain.appendOutput(' + index + ', `' + value + '`)')
@@ -150,7 +151,7 @@ let runner = {
     let options = {}
 
     if (step.workingDirectory) {
-      if (fs.existsSync(path)) {
+      if (fs.existsSync(step.workingDirectory)) {
         options.cwd = step.workingDirectory
       } else {
         runner.log('ERROR: The working directory specified for step', step.displayName, 'does not exist.')
@@ -206,20 +207,26 @@ let runner = {
         step.args[arg] = step.args[arg].replace('}', '◀')
         step.args[arg] = step.args[arg].replace(new RegExp('💲▶' + v + '◀', 'g'), process.env[v])
       }
+    }
 
-      step.args[arg] = step.args[arg].replace(/\\\\/g, path.sep)
-      step.args[arg] = step.args[arg].replace(/\\/g, path.sep)
-      step.args[arg] = step.args[arg].replace(/\//g, path.sep)
+    // check if the exec exists
+    if (!fs.existsSync(exec)) {
+      runner.log('ERROR: Could not find the executable for step', step.displayName)
     }
 
     // run the exec
     runner.log('Executing step', step.displayName, ':', exec, step.args.join(' '))
 
-    if (!fs.existsSync(exec)) {
-      runner.log('ERROR: Could not find the executable for step', step.displayName)
+    let proc
+
+    if (exec.substr(exec.length - 4) !== '.bat') {
+      proc = spawn(exec, step.args, options)
+    } else {
+      runner.log('Treating the executable as a .bat file.')
+      proc = spawn('cmd.exe', [ '/s', '/c', exec, ...step.args ], options)
     }
 
-    let proc = spawn(exec, step.args, options).on('error', (err) => {
+    proc.on('error', (err) => {
       console.log(err)
       runner.guiLog(index, err)
     })
@@ -263,17 +270,27 @@ let runner = {
 
   finish () {
     runner.log('Finishing CI steps')
+
+    if (!runner.gui) {
+      process.exit()
+    }
   },
 
   parseYaml () {
-    console.log(process.argv)
+    let yamlFile
 
-    if (!fs.existsSync(process.argv[1])) {
+    for (let arg in process.argv) {
+      if (process.argv[arg].includes('.yaml') || process.argv[arg].includes('.yml')) {
+        yamlFile = process.argv[arg]
+      }
+    }
+
+    if (!fs.existsSync(yamlFile)) {
       runner.log('ERROR: The specified YAML file does not exist.')
       process.exit(1)
     }
 
-    runner.yaml = YAML.parse(fs.readFileSync(process.argv[1], 'utf8'))
+    runner.yaml = YAML.parse(fs.readFileSync(yamlFile, 'utf8'))
 
     if (runner.gui) {
       let guiSteps = []
