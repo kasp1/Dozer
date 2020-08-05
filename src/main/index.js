@@ -26,6 +26,8 @@ let runner = {
   electronRoot: '',
   PATH: [],
   tmp: '',
+  startTime: null,
+  totalTimes: [],
 
   init () {
     runner.url = process.env.NODE_ENV === 'development'
@@ -218,6 +220,8 @@ let runner = {
     // run the exec
     runner.log('Executing step', step.displayName, ':', exec, step.args.join(' '))
 
+    runner.startTime = Date.now()
+
     let proc = spawn(`"` + exec + `"`, step.args, { windowsVerbatimArguments: true, ...options })
 
     console.log(proc.spawnargs)
@@ -243,10 +247,15 @@ let runner = {
     })
 
     proc.on('close', (code) => {
+      let totalTime = Math.abs(new Date() - runner.startTime)
+      runner.totalTimes.push(totalTime)
+      totalTime = runner.formatTime(totalTime)
+
       if (code === 0) {
-        runner.log('Sucessfully executed (exit code ' + code + '):', step.displayName)
+        runner.log('Sucessfully executed:', step.displayName, 'took', totalTime)
 
         runner.vueUpdateValue('statuses[' + index + ']', 'success')
+        runner.vueUpdateValue('times[' + index + ']', totalTime)
 
         if (runner.yaml.steps[index + 1]) {
           runner.exec(index + 1, runner.yaml.steps[index + 1])
@@ -255,9 +264,10 @@ let runner = {
         }
       } else {
         runner.failure = true
-        runner.log('Failure (exit code ' + code + ') during step:', step.displayName)
+        runner.log('Failure (exit code ' + code + ') during step:', step.displayName, 'took', totalTime)
 
         runner.vueUpdateValue('statuses[' + index + ']', 'failure')
+        runner.vueUpdateValue('times[' + index + ']', totalTime)
 
         runner.finish()
       }
@@ -338,6 +348,22 @@ let runner = {
     if (runner.gui) {
       runner.vueAppendOutput(step, data)
     }
+  },
+
+  formatTime (millis) {
+    let second = 1000
+    let minute = second * 60
+    let hour = minute * 60
+
+    if (millis > hour) {
+      return Math.floor(millis / hour) + 'h ' + Math.round((millis % hour) / minute) + 'm'
+    }
+
+    if (millis > minute) {
+      return Math.floor(millis / minute) + 'm ' + Math.round((millis % minute) / second) + 's'
+    }
+
+    return (millis / 1000) + 's'
   }
 }
 

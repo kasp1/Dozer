@@ -8,7 +8,7 @@
           :key="step"
           @click="selectedStep = step"
           :data-active="step == selectedStep ? true : false">
-            <span :data-indicator="indicator(step)">{{ indicator(step) }}</span> {{ title }}
+            <span :data-indicator="indicator(step)">{{ indicator(step) }}</span> {{ title }} <span v-if="times[step]">{{ times[step] }}</span>
         </a>
       </div>
       <div id="environment" class="section">
@@ -36,6 +36,7 @@
         steps: [],
         outputs: [],
         statuses: [],
+        times: [],
         selectedStep: 0
       }
     },
@@ -154,6 +155,14 @@
   .step span[data-indicator="➔"] { color: lightskyblue; }
   .step span[data-indicator="✘"] { color: orangered; }
   .step span[data-indicator="●"] { color: white; }
+
+  .step span:nth-child(2) {
+    color: #bbbbbb;
+    background-color: #1e1e1e;
+    font-size: 11px;
+    border-radius: 3px;
+    padding: 2px 4px;
+  }
 
   .var {
     color: #bbbbbb;
