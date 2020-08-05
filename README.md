@@ -13,7 +13,7 @@ Useful if:
 
 The GUI window is optional.
 
-![](screenshots/1.png)
+![](screenshots/2.png)
 
 ## Quick Start
 
