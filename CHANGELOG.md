@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://github.com/kasp1/Dozer/compare/v1.2.0...v1.3.0) (2020-08-07)
+
+
+### Features
+
+* Variables are now set with stdout output ([45402a0](https://github.com/kasp1/Dozer/commit/45402a0791c8e27e6010ea2c498903bc1e7bde52))
+
 ## [1.2.0](https://github.com/kasp1/Dozer/compare/v1.1.1...v1.2.0) (2020-08-05)
 
 
