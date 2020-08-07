@@ -37,9 +37,9 @@ steps:
 
 - displayName: 'Gist Step' # This step automatically downloads the mentioned code and saves it under the temporary directory.
   exec: node
-  code: https://gist.githubusercontent.com/kasp1/9efbc3afc32783d34a903aebe1d3b734/raw/56ae650b3e80db7c5072af67965f94587158b243/bulldozer-create-CI_NODE_VERSION.js
+  code: https://gist.githubusercontent.com/kasp1/9efbc3afc32783d34a903aebe1d3b734/raw/56ae650b3e80db7c5072af67965f94587158b243/dozer-create-CI_NODE_VERSION.js
   args:
-    - ${TMP}/bulldozer-create-CI_NODE_VERSION.js
+    - ${TMP}/dozer-create-CI_NODE_VERSION.js
 ```
 
 ## Run Dozer
