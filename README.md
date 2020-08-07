@@ -15,9 +15,9 @@ The GUI window is optional.
 
 ![](screenshots/3.png)
 
-## Quick Start
+# Quick Start
 
-### Create CI/CD workflow 
+## Create CI/CD workflow 
 
 And save it as a YAML file in your project's directory, for example **ci.yaml**:
 
@@ -42,7 +42,7 @@ steps:
     - ${TMP}/bulldozer-create-CI_NODE_VERSION.js
 ```
 
-### Run Dozer
+## Run Dozer
 
 Then in your project's directory, run the following command:
 
@@ -52,19 +52,130 @@ dozer ci.yaml # --gui
 
 Remove the hash if you want Dozer to display the GUI as well.
 
-## Install Dozer
+## Create custom steps
+
+Dozer steps don't need to be written in any particular language. Create an executable script/binary in your favorite programming language. Test it with regular command line calls, then add it as a Dozer step in a similar manner.
+
+## Set environment variables from Dozer steps
+
+Sometimes you need to pass data from one step to another. With Dozer you would set an environment variable by outputting a regular standard output line with the syntax `##varName=value`.
+
+Node.js:
+```js
+console.log('##NEXT_VERSION=1.0.1')
+```
+
+Python:
+```python
+print('##NEXT_VERSION=1.0.1')
+```
+
+PHP:
+```php
+print '##NEXT_VERSION=1.0.1';
+```
+
+Dart:
+```dart
+print('##NEXT_VERSION=1.0.1');
+```
+
+Please note that `##` cannot be prepended with another output on the same line.
+
+## Read environment variables in Dozer steps
+
+All environment variables, including the ones you set in previous steps, are obtained the standard way for your language of choice.
+
+Node.js
+```js
+process.env['NEXT_VERSION']
+```
+
+Python
+```python
+import os
+print(os.environ['NEXT_VERSION'])
+```
+
+PHP
+```php
+getenv('NEXT_VERSION');
+```
+
+Dart
+```dart
+import 'dart:io';
+Platform.environment['NEXT_VERSION']
+```
+
+# Install Dozer
 
 [Get the latest release](https://github.com/kasp1/Dozer/releases/) and run it as an Administrator.
 
-## Support
+# Cookbook
+
+## Set semantic-release version to CI_VERSION
+
+Assuming you have semantic-release set up for your project, add the following `semantic-release-env-version` plugin to your semantic-release configuration, e.g:
+
+```json
+"release": {
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    "@semantic-release/changelog",
+    [ "./semantic-release-env-version.js", {
+      "varName": "CI_VERSION",
+      "setOnlyOnRelease": false
+    }]
+  ]
+}
+```
+
+Don't forget to update the path to the plugin's file `semantic-release-env-version.js`, which should contain the following code:
+
+```js
+const { spawnSync } = require("child_process")
+
+let mod = {
+  async analyzeCommits (pluginConfig, { lastRelease: { version }, logger }) {
+    const setOnlyOnRelease = pluginConfig.setOnlyOnRelease === undefined ? true : !!pluginConfig.setOnlyOnRelease
+  
+    if (!setOnlyOnRelease) {
+      const varName = pluginConfig.varName || 'nextRelease'
+      console.log(`##${varName}=${version}`)
+    }
+  },
+
+  async prepare (pluginConfig, { nextRelease: { version }, logger }) {
+    const varName = pluginConfig.varName || 'nextRelease'
+    console.log(`##${varName}=${version}`)
+  }
+}
+
+module.exports = mod
+```
+
+Step to run semantic release:
+
+```yaml
+steps:
+- displayName: 'Semantic Release'
+  exec: npx
+  args:
+    - semantic-release
+    - --no-ci
+```
+
+# Support
 
 Create issues or send email to k@e0.cz
 
-## Contribute
+# Contribute
 
 Clone the repository and change the line `120` at `.electron-vue/dev-runner.js` to your test YAML file.
 
-#### Build Setup
+## Build Setup
 
 ``` bash
 # install dependencies
