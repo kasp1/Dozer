@@ -19,7 +19,7 @@ let runner = {
   gui: false,
   window: null,
   url: '',
-  collectedVars: {},
+  collectedEnvVars: {},
   lastEnv: [],
   yaml: null,
   failure: false,
@@ -28,6 +28,7 @@ let runner = {
   tmp: '',
   startTime: null,
   totalTimes: [],
+  addedVars: {},
 
   init () {
     runner.url = process.env.NODE_ENV === 'development'
@@ -91,12 +92,12 @@ let runner = {
     })
   },
 
-  collectVars () {
+  collectEnvVars () {
     let importantVars = [ 'OS', 'TMP', 'HOME', 'JAVA_HOME', 'PROCESSOR_ARCHITECTURE' ]
 
     for (let v in process.env) {
-      if (importantVars.includes(v) || v.includes('CI_')) {
-        runner.collectedVars[v] = process.env[v].replace(/\\/g, '/')
+      if (importantVars.includes(v)) {
+        runner.collectedEnvVars[v] = process.env[v].replace(/\\/g, '/')
       }
     }
   },
@@ -125,11 +126,12 @@ let runner = {
   },
 
   updateVars () {
-    if (runner.lastEnv !== process.env) {
-      runner.lastEnv = process.env
-      runner.collectVars()
-      runner.vueUpdateValue('vars', runner.collectedVars, true)
-    }
+    runner.collectEnvVars()
+    let allVars = { ...runner.addedVars, ...runner.collectedEnvVars }
+
+    console.log(allVars)
+
+    runner.vueUpdateValue('vars', allVars, true)
   },
 
   start () {
@@ -150,9 +152,12 @@ let runner = {
 
     runner.vueAttachValueToArray('statuses', 'progress')
 
-    // change working directory if set
-    let options = { shell: true }
+    let options = {
+      shell: true,
+      env: { ...process.env, ...runner.addedVars }
+    }
 
+    // change working directory if set
     if (step.workingDirectory) {
       if (fs.existsSync(step.workingDirectory)) {
         options.cwd = step.workingDirectory
@@ -210,6 +215,13 @@ let runner = {
         step.args[arg] = step.args[arg].replace('}', '◀')
         step.args[arg] = step.args[arg].replace(new RegExp('💲▶' + v + '◀', 'g'), process.env[v])
       }
+
+      for (let v in runner.addedVars) {
+        step.args[arg] = step.args[arg].replace('$', '💲')
+        step.args[arg] = step.args[arg].replace('{', '▶')
+        step.args[arg] = step.args[arg].replace('}', '◀')
+        step.args[arg] = step.args[arg].replace(new RegExp('💲▶' + v + '◀', 'g'), process.env[v])
+      }
     }
 
     // check if the exec exists
@@ -224,8 +236,6 @@ let runner = {
 
     let proc = spawn(`"` + exec + `"`, step.args, { windowsVerbatimArguments: true, ...options })
 
-    console.log(proc.spawnargs)
-
     proc.on('error', (err) => {
       console.log(err)
       runner.guiLog(index, err)
@@ -236,7 +246,17 @@ let runner = {
 
     proc.stdout.on('data', (data) => {
       let str = data.toString()
-      console.log(str)
+
+      // is this a variable definition?
+      if (str.match(/^##[a-zA-Z0-9_]+=.+/gm)) {
+        str = str.replace('##', '')
+        str = str.split('=')
+        runner.log('Setting env var', str[0], 'to', str[1].trim())
+        runner.addedVars[str[0]] = str[1].trim()
+      } else {
+        console.log(str)
+      }
+
       runner.guiLog(index, str.toString())
     })
 
@@ -250,6 +270,8 @@ let runner = {
       let totalTime = Math.abs(new Date() - runner.startTime)
       runner.totalTimes.push(totalTime)
       totalTime = runner.formatTime(totalTime)
+
+      runner.updateVars()
 
       if (code === 0) {
         runner.log('Sucessfully executed:', step.displayName, 'took', totalTime)
