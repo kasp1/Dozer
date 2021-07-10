@@ -252,6 +252,13 @@ let runner = {
       runner.log('ERROR: Could not find the executable for step', step.displayName)
     }
 
+    // wrap args with " if they contain a space
+    for (let arg in step.args) {
+      if (step.args[arg].includes(' ')) {
+        step.args[arg] = '"' + step.args[arg] + '"'
+      }
+    }
+
     // run the exec
     runner.log('Executing step', step.displayName, ':', exec, step.args.join(' '))
 
