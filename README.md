@@ -52,6 +52,11 @@ dozer ci.yaml # --gui
 
 Remove the hash if you want Dozer to display the GUI as well.
 
+## Command line arguments
+
+- `--gui` opens the user interface.
+- `--root <dir>` changes the starting working directory. Overrides the YAML `runtimeDirectory` option. Both \ and / can be specified as the path separators.
+
 ## Create custom steps
 
 Dozer steps don't need to be written in any particular language. Create an executable script/binary in your favorite programming language. Test it with regular command line calls, then add it as a Dozer step in a similar manner.
@@ -173,8 +178,6 @@ Create issues or send email to k@e0.cz
 
 # Contribute
 
-Clone the repository and change the line `120` at `.electron-vue/dev-runner.js` to your test YAML file.
-
 ## Build Setup
 
 ``` bash
@@ -191,6 +194,12 @@ npm run build
 # lint all JS/Vue component files in `src/`
 npm run lint
 
+```
+
+While debugging with npm, command line options can be added after `--`, e.g.:
+
+``` bash
+npm run dev -- --gui --root C:\rootdir
 ```
 
 ---

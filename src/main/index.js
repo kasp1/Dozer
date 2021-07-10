@@ -29,6 +29,7 @@ let runner = {
   startTime: null,
   totalTimes: [],
   addedVars: {},
+  cmdRoot: false,
 
   init () {
     runner.url = process.env.NODE_ENV === 'development'
@@ -36,6 +37,24 @@ let runner = {
       : `file://${__dirname}/index.html`
 
     runner.gui = process.argv.includes('--gui')
+
+    if (process.argv.includes('--root')) {
+      let rootDirArgPos = process.argv.indexOf('--root')
+      let rootDir = process.argv[rootDirArgPos + 1]
+
+      if (rootDir) {
+        if (fs.existsSync(rootDir)) {
+          runner.cmdRoot = rootDir
+          runner.log('Changing working directory to', runner.cmdRoot)
+          process.chdir(runner.cmdRoot)
+        } else {
+          runner.log('The --root argument has been specified but the path does not seem to exist. Ignoring.', rootDir)
+        }
+      } else {
+        runner.log('The --root argument has been specified but was not followed by a path. Ignoring.')
+      }
+    }
+
     runner.electronRoot = path.resolve(__dirname)
     runner.PATH = process.env.path.replace(/\\/g, '/').split(';')
     runner.tmp = app.getPath('temp')
@@ -138,8 +157,12 @@ let runner = {
     runner.parseYaml()
 
     if (runner.yaml.runtimeDirectory) {
-      runner.log('Changing working directory to', runner.yaml.runtimeDirectory)
-      process.chdir(runner.yaml.runtimeDirectory)
+      if (!runner.cmdRoot) {
+        runner.log('Changing working directory to', runner.yaml.runtimeDirectory)
+        process.chdir(runner.yaml.runtimeDirectory)
+      } else {
+        runner.log('Root directory has been specified in the configuration YAML, but it has been overriden by the --root argument.')
+      }
     }
 
     runner.log('Running CI steps')

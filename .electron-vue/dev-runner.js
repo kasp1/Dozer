@@ -116,9 +116,7 @@ function startMain () {
 function startElectron () {
   var args = [
     '--inspect=5858',
-    path.join(__dirname, '../dist/electron/main.js'),
-    'C:/Users/Mirek/Desktop/projects/transhuma/SigmaPlanner/ci.yaml',
-    '--gui'
+    path.join(__dirname, '../dist/electron/main.js')
   ]
 
   // detect yarn or npm and process commandline args accordingly
