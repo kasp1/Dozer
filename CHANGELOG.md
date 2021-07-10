@@ -1,3 +1,15 @@
+# [1.4.0](https://github.com/kasp1/Dozer/compare/v1.3.0...v1.4.0) (2021-07-10)
+
+
+### Bug Fixes
+
+* pipeline arguments containing space are now wrapped with quotes ([6d3b525](https://github.com/kasp1/Dozer/commit/6d3b525734748aecc3b739f12fdd8ee71c4e87c1))
+
+
+### Features
+
+* optional command line argument --root <path> can now specify and override the working dir ([ec3461f](https://github.com/kasp1/Dozer/commit/ec3461f9627ec3035b71bc68e5b00392412e7e33))
+
 # Changelog
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
