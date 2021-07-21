@@ -252,10 +252,16 @@ let runner = {
       runner.log('ERROR: Could not find the executable for step', step.displayName)
     }
 
-    // wrap args with " if they contain a space
+    // wrap args with " if they contain a special character
+    let specialChars = ' ~`#&$*()|[]{};\'<>?!'
+    specialChars = specialChars.split('')
+
     for (let arg in step.args) {
-      if (step.args[arg].includes(' ')) {
-        step.args[arg] = '"' + step.args[arg] + '"'
+      for (let char of specialChars) {
+        if (step.args[arg].includes(char)) {
+          step.args[arg] = '"' + step.args[arg] + '"'
+          break
+        }
       }
     }
 
