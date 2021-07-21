@@ -63,26 +63,26 @@ Dozer steps don't need to be written in any particular language. Create an execu
 
 ## Set environment variables from Dozer steps
 
-Sometimes you need to pass data from one step to another. With Dozer you would set an environment variable by outputting a regular standard output line with the syntax `##varName=value`.
+Sometimes you need to pass data from one step to another. With Dozer you would set an environment variable by outputting a regular standard output line with the syntax `##varName=value#`.
 
 Node.js:
 ```js
-console.log('##NEXT_VERSION=1.0.1')
+console.log('##NEXT_VERSION=1.0.1#')
 ```
 
 Python:
 ```python
-print('##NEXT_VERSION=1.0.1')
+print('##NEXT_VERSION=1.0.1#')
 ```
 
 PHP:
 ```php
-print '##NEXT_VERSION=1.0.1';
+print '##NEXT_VERSION=1.0.1#';
 ```
 
 Dart:
 ```dart
-print('##NEXT_VERSION=1.0.1');
+print('##NEXT_VERSION=1.0.1#');
 ```
 
 Please note that `##` cannot be prepended with another output on the same line.
@@ -142,19 +142,24 @@ Don't forget to update the path to the plugin's file `semantic-release-env-versi
 ```js
 const { spawnSync } = require("child_process")
 
+function setDozerCiVersion(varName, version) {
+  version = version || '1.0.0' // 1.0.0 if there is no tag history in the repo
+
+  varName = varName || 'CI_VERSION'
+  console.log(`##${varName}=${version}#`)
+} 
+
 let mod = {
   async analyzeCommits (pluginConfig, { lastRelease: { version }, logger }) {
     const setOnlyOnRelease = pluginConfig.setOnlyOnRelease === undefined ? true : !!pluginConfig.setOnlyOnRelease
   
     if (!setOnlyOnRelease) {
-      const varName = pluginConfig.varName || 'nextRelease'
-      console.log(`##${varName}=${version}`)
+      setDozerCiVersion(pluginConfig.varName, version)
     }
   },
 
   async prepare (pluginConfig, { nextRelease: { version }, logger }) {
-    const varName = pluginConfig.varName || 'nextRelease'
-    console.log(`##${varName}=${version}`)
+    setDozerCiVersion(pluginConfig.varName, version)
   }
 }
 

@@ -275,19 +275,25 @@ let runner = {
     proc.stderr.setEncoding('utf8')
 
     proc.stdout.on('data', (data) => {
-      let str = data.toString()
+      let matches = data.toString().match(/##[a-zA-Z0-9_]+=.+#/gm)
 
-      // is this a variable definition?
-      if (str.match(/^##[a-zA-Z0-9_]+=.+/gm)) {
-        str = str.replace('##', '')
-        str = str.split('=')
-        runner.log('Setting env var', str[0], 'to', str[1].trim())
-        runner.addedVars[str[0]] = str[1].trim()
+      // does this contain a variable definition?
+      if (matches) {
+        console.log('Found variable definition', matches)
+
+        let str
+        for (let match of matches) {
+          str = match.replace(/^##/, '').replace(/#$/, '')
+          str = str.split('=')
+
+          runner.log('Setting env var', str[0], 'to', str[1].trim())
+          runner.addedVars[str[0]] = str[1].trim()
+        }
       } else {
-        console.log(str)
+        console.log(data.toString())
       }
 
-      runner.guiLog(index, str.toString())
+      runner.guiLog(index, data.toString())
     })
 
     proc.stderr.on('data', (data) => {
