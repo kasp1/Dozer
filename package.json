@@ -1,9 +1,9 @@
 {
   "name": "dozer",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "author": "Mirek Kaspar <k@e0.cz>",
   "description": "Simple CI/CD Runner",
-  "license": null,
+  "license": "MIT",
   "private": true,
   "main": "./dist/electron/main.js",
   "scripts": {

@@ -1,0 +1,8 @@
+
+steps:
+- displayName: Say Hello
+  command: echo "Hi there!"
+
+- displayName: Multi-line Command
+  command: echo "Hi there!"
+    "Hello from Paris!"

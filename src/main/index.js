@@ -4,7 +4,7 @@ import { app, BrowserWindow } from 'electron'
 import fs from 'fs'
 import path from 'path'
 import YAML from 'yaml'
-import { spawn } from 'child_process'
+import { exec } from 'child_process'
 import Axios from 'axios'
 
 /**
@@ -123,15 +123,16 @@ let runner = {
 
   vueUpdateValue (target, value) {
     if (runner.gui) {
-      runner.window.webContents.executeJavaScript('window.vueMain.' + target + ' = JSON.parse(\'' + JSON.stringify(value) + '\')')
-      runner.window.webContents.executeJavaScript('window.vueMain.$forceUpdate()')
+      runner.window.webContents.executeJavaScript('window.vueMain.' + target + ' = JSON.parse(\'' + JSON.stringify(value) + '\')').catch(() => {})
+      runner.window.webContents.executeJavaScript('window.vueMain.$forceUpdate()').catch(() => {})
     }
   },
 
   vueAttachValueToArray (target, value) {
     if (runner.gui) {
       value = value.replace('`', '\'')
-      runner.window.webContents.executeJavaScript('window.vueMain.' + target + '.push(`' + value + '`)')
+
+      runner.window.webContents.executeJavaScript('window.vueMain.' + target + '.push(`' + value + '`)').catch(() => {})
     }
   },
 
@@ -140,7 +141,10 @@ let runner = {
       value = value.toString()
       value = value.replace(/`/g, '\'')
       value = value.replace(/\\/g, '/')
-      runner.window.webContents.executeJavaScript('window.vueMain.appendOutput(' + index + ', `' + value + '`)')
+
+      try {
+        runner.window.webContents.executeJavaScript('window.vueMain.appendOutput(' + index + ', `' + value + '`)')
+      } catch (e) {}
     }
   },
 
@@ -176,7 +180,6 @@ let runner = {
     runner.vueAttachValueToArray('statuses', 'progress')
 
     let options = {
-      shell: true,
       env: { ...process.env, ...runner.addedVars }
     }
 
@@ -186,23 +189,6 @@ let runner = {
         options.cwd = step.workingDirectory
       } else {
         runner.log('ERROR: The working directory specified for step', step.displayName, 'does not exist.')
-      }
-    }
-
-    // make sure the exec exists or find it if necessary
-    let exec = step.exec
-
-    if (!fs.existsSync(exec)) {
-      for (let p in runner.PATH) {
-        if (fs.existsSync(path.join(runner.PATH[p], exec + '.exe'))) {
-          exec = path.join(runner.PATH[p], exec)
-          break
-        }
-
-        if (fs.existsSync(path.join(runner.PATH[p], exec))) {
-          exec = path.join(runner.PATH[p], exec)
-          break
-        }
       }
     }
 
@@ -230,47 +216,23 @@ let runner = {
       }
     }
 
-    // replace variables in arguments with values
-    for (let arg in step.args) {
-      for (let v in process.env) {
-        step.args[arg] = step.args[arg].replace('$', '💲')
-        step.args[arg] = step.args[arg].replace('{', '▶')
-        step.args[arg] = step.args[arg].replace('}', '◀')
-        step.args[arg] = step.args[arg].replace(new RegExp('💲▶' + v + '◀', 'g'), process.env[v])
-      }
+    let command = step.command
 
-      for (let v in runner.addedVars) {
-        step.args[arg] = step.args[arg].replace('$', '💲')
-        step.args[arg] = step.args[arg].replace('{', '▶')
-        step.args[arg] = step.args[arg].replace('}', '◀')
-        step.args[arg] = step.args[arg].replace(new RegExp('💲▶' + v + '◀', 'g'), process.env[v])
-      }
+    // replace variables in the command with values
+    for (let v in process.env) {
+      command = command.replace(new RegExp('$' + v, 'g'), process.env[v])
     }
 
-    // check if the exec exists
-    if (!fs.existsSync(exec)) {
-      runner.log('ERROR: Could not find the executable for step', step.displayName)
-    }
-
-    // wrap args with " if they contain a special character
-    let specialChars = ' ~`#&$*()|[]{};\'<>?!'
-    specialChars = specialChars.split('')
-
-    for (let arg in step.args) {
-      for (let char of specialChars) {
-        if (step.args[arg].includes(char)) {
-          step.args[arg] = '"' + step.args[arg] + '"'
-          break
-        }
-      }
+    for (let v in runner.addedVars) {
+      command = command.replace(new RegExp('$' + v, 'g'), runner.addedVars[v])
     }
 
     // run the exec
-    runner.log('Executing step', step.displayName, ':', exec, step.args.join(' '))
+    runner.log('Executing step', step.displayName, ':', step.command)
 
     runner.startTime = Date.now()
 
-    let proc = spawn(`"` + exec + `"`, step.args, { windowsVerbatimArguments: true, ...options })
+    let proc = exec(`${step.command}`, { windowsVerbatimArguments: true, ...options })
 
     proc.on('error', (err) => {
       console.log(err)

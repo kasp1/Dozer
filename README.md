@@ -25,21 +25,15 @@ And save it as a YAML file in your project's directory, for example **ci.yaml**:
 runtimeDirectory: C:/somewhere # optional, default: current workding directory
 
 steps:
-- displayName: 'Print Node Version' # any display name
-  exec: node # path to the executable, try absolute path if things get screwed
-  args:
-    - -v
+- displayName: Print Node Version # any display name
+  command: node -v # CLI command to run
 
-- displayName: 'Another step'
-  exec: C:/Program Files/Java/jdk1.8.0_211/bin/java.exe
-  args:
-    - -version
+- displayName: Another step
+  command: C:/Program Files/Java/jdk1.8.0_211/bin/java.exe -version
 
-- displayName: 'Gist Step' # This step automatically downloads the mentioned code and saves it under the temporary directory.
-  exec: node
+- displayName: Gist Step # This step automatically downloads the linked code and saves it under the temporary directory.
+  command: node ${TMP}/dozer-create-CI_NODE_VERSION.js
   code: https://gist.githubusercontent.com/kasp1/9efbc3afc32783d34a903aebe1d3b734/raw/56ae650b3e80db7c5072af67965f94587158b243/dozer-create-CI_NODE_VERSION.js
-  args:
-    - ${TMP}/dozer-create-CI_NODE_VERSION.js
 ```
 
 ## Run Dozer
@@ -171,10 +165,7 @@ Step to run semantic release:
 ```yaml
 steps:
 - displayName: 'Semantic Release'
-  exec: npx
-  args:
-    - semantic-release
-    - --no-ci
+  comand: npx semantic-release --no-ci
 ```
 
 # Support
@@ -204,7 +195,7 @@ npm run lint
 While debugging with npm, command line options can be added after `--`, e.g.:
 
 ``` bash
-npm run dev -- --gui --root C:\rootdir
+npm run dev -- ci.yaml --gui --root C:\rootdir
 ```
 
 ---
