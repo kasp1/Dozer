@@ -22,14 +22,17 @@ The GUI window is optional.
 And save it as a YAML file in your project's directory, for example **ci.yaml**:
 
 ```yaml
-runtimeDirectory: C:/somewhere # optional, default: current workding directory
+runtimeDirectory: C:/somewhere # optional, default: current working directory
 
 steps:
 - displayName: Print Node Version # any display name
   command: node -v # CLI command to run
 
 - displayName: Another step
-  command: C:/Program Files/Java/jdk1.8.0_211/bin/java.exe -version
+  workingDirectory: C:/Program Files/Java/jdk1.8.0_211/bin
+  skippable: true # the execution will continue on failure of this step
+  command: java.exe
+    -version # can be multi-line
 
 - displayName: Gist Step # This step automatically downloads the linked code and saves it under the temporary directory.
   command: node ${TMP}/dozer-create-CI_NODE_VERSION.js

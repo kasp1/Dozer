@@ -288,6 +288,18 @@ let runner = {
         } else {
           runner.finish()
         }
+      } else if (step.skippable === true) {
+        runner.failure = true
+        runner.log('Failure (exit code ' + code + ') during step:', step.displayName, 'took', totalTime)
+
+        runner.vueUpdateValue('statuses[' + index + ']', 'failure')
+        runner.vueUpdateValue('times[' + index + ']', totalTime)
+
+        if (runner.yaml.steps[index + 1]) {
+          runner.exec(index + 1, runner.yaml.steps[index + 1])
+        } else {
+          runner.finish()
+        }
       } else {
         runner.failure = true
         runner.log('Failure (exit code ' + code + ') during step:', step.displayName, 'took', totalTime)

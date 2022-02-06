@@ -1,6 +1,6 @@
 {
   "name": "dozer",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "author": "Mirek Kaspar <k@e0.cz>",
   "description": "Simple CI/CD Runner",
   "license": "MIT",
