@@ -1,0 +1,1 @@
+dozer CI\macos.yaml --gui

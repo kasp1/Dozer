@@ -13,7 +13,7 @@ steps:
   command: cd "runner" && npm i
 
 - displayName: Build Runner
-  command: cd "runner" && pkg main.js -o ../dist/dozer-win -t latest-win
+  command: cd "runner" && pkg main.js -o ../dist/dozer-linux -t latest-linux
 
 - displayName: Install WebUI Dependencies
   command: cd "webui" && npm i
@@ -21,5 +21,5 @@ steps:
 - displayName: Build WebUI
   command: cd "webui" && npm run build
 
-- displayName: Package Windows Build
-  command: node CI/archive-windows.js
+- displayName: Package Linux Build
+  command: node CI/archive-linux.js
