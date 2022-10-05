@@ -1,7 +1,7 @@
 
-import path from 'path'
-import os from'os'
-import Axios from 'axios'
+const path = require('path')
+const os = require('os')
+const Axios = require('axios')
 
 let helpers = {
   log (...args) {
@@ -76,4 +76,4 @@ let helpers = {
   }
 }
 
-export default helpers
+module.exports = helpers

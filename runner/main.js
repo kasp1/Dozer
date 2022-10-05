@@ -1,11 +1,9 @@
-'use strict'
+const fs = require('fs')
+const YAML = require('yaml')
+const { exec } = require('child_process')
 
-import fs from 'fs'
-import YAML from 'yaml'
-import { exec } from 'child_process'
-
-import h from './helpers.js'
-import api from './api.js'
+const h = require('./helpers.js')
+const api = require('./api.js')
 
 let runner = {
   collectedEnvVars: {},
@@ -21,7 +19,7 @@ let runner = {
   init () {
     api.runner = runner
 
-    runner.provideApi = process.argv.includes('--no-api')
+    runner.provideApi = !process.argv.includes('--no-api')
     
     if (runner.provideApi) {
       api.init()

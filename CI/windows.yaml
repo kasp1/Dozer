@@ -1,0 +1,25 @@
+steps:
+
+- displayName: Install Dependencies
+  command: npm i
+
+#
+# Build
+#
+# - displayName: Semantic Release
+#   command: npx semantic-release --no-ci --debug
+
+- displayName: Install Runner Dependencies
+  command: cd "runner" && npm i
+
+- displayName: Build Runner
+  command: cd "runner" && pkg main.js -o ../dist/dozer-win
+
+- displayName: Install WebUI Dependencies
+  command: cd "webui" && npm i
+
+- displayName: Build WebUI
+  command: cd "webui" && npm run build
+
+- displayName: Package Windows Build
+  command: node CI/archive-windows.js

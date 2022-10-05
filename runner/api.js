@@ -1,6 +1,7 @@
-import { WebSocketServer } from 'ws'
+const { WebSocketServer } = require('ws')
+const h = require('./helpers.js')
 
-export default {
+let api = {
   runner: null,
   firstUiConnectionTimeout: null,
   clients: [],
@@ -22,23 +23,23 @@ export default {
         if (newPort.isInteger()) {
           port = newPort
         } else {
-          api.runner.log('The --api-port argument has been specified but was not followed by a valid integer. Ignoring.', apiPort)
+          h.log('The --api-port argument has been specified but was not followed by a valid integer. Ignoring.', apiPort)
         }
       } else {
-        api.runner.log('The --api-port argument has been specified but was not followed by a port number. Ignoring.')
+        h.log('The --api-port argument has been specified but was not followed by a port number. Ignoring.')
       }
     }
 
-    api.runner.log('Starting API on', port)
+    h.log('Starting API on', port)
     const wss = new WebSocketServer({ port: port })
     wss.on('connection', api.connected)
   },
 
   waitForFirstConnection () {
-    api.runner.log('Waiting 10 seconds for a UI to connect...')
+    h.log('Waiting 10 seconds for a UI to connect...')
 
     api.firstUiConnectionTimeout = setTimeout(() => {
-      api.runner.log('No UI has connected, starting the pipeline...')
+      h.log('No UI has connected, starting the pipeline...')
 
       api.runner.start()
     }, 10000)
@@ -59,7 +60,7 @@ export default {
   },
 
   sendToAll (body) {
-    for (let client of clients) {
+    for (let client of api.clients) {
       client.send(JSON.stringify(body))
     }
   },
@@ -81,6 +82,8 @@ export default {
     output = output.replace(/`/g, '\'')
     output = output.replace(/\\/g, '/')
 
+    api.recap[step].output.push(output)
+
     api.sendToAll({
       step: step,
       output: output
@@ -88,6 +91,8 @@ export default {
   },
 
   sendStatus (step, status, totalTime) {
+    api.recap[step].status = status
+
     let message = {
       step: step,
       status: status
@@ -100,3 +105,5 @@ export default {
     api.sendToAll(message)
   },
 }
+
+module.exports = api

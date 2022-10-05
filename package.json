@@ -22,5 +22,9 @@
       "@semantic-release/changelog",
       "@semantic-release/npm"
     ]
-  }
+  },
+  "dependencies": {
+    "archiver": "^5.3.1"
+  },
+  "type": "module"
 }
