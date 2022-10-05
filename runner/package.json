@@ -1,0 +1,15 @@
+{
+  "name": "runner",
+  "version": "1.0.0",
+  "author": "Mirek Kaspar <k@e0.cz>",
+  "description": "Simple CI/CD Runner",
+  "license": "MIT",
+  "private": true,
+  "main": "./main.js",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "ws": "^8.9.0",
+    "yaml": "^1.10.0"
+  },
+  "type": "module"
+}
