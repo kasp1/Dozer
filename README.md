@@ -3,13 +3,11 @@
 > Simple continuous integration runner.
 
 Useful if:
-- You don't have your own server existing cloud CI/CD options seem like an overkill.
+- You don't have your own server existing cloud CI/CD options seem like overkill.
 - Existing cloud CI/CD options are not suitable for some reason (e.g. too hardware demanding runs).
 - You want to use command line tools that are hard to install over command line.
-- Your environment is already set up and you want save time installing all tools on each CI/CD runs.
+- Your environment is already set up and you want to save time installing all tools on each CI/CD run.
 - You want to develop and test your CI/CD steps on your localhost before uploading the scripts to a cloud CI/CD.
-
-[<img src="https://cdn.buymeacoffee.com/buttons/default-green.png" alt="Buy Me A Coffee" width="217">](https://www.buymeacoffee.com/transhuma)
 
 The GUI window is optional.
 
@@ -19,7 +17,7 @@ The GUI window is optional.
 
 ## Create CI/CD workflow 
 
-And save it as a YAML file in your project's directory, for example **ci.yaml**:
+And save it as a YAML file in your project's directory, for example, **ci.yaml**:
 
 ```yaml
 runtimeDirectory: C:/somewhere # optional, default: current working directory
@@ -52,7 +50,7 @@ Remove the hash if you want Dozer to display the GUI as well.
 ## Command line arguments
 
 - `--gui` opens the user interface.
-- `--root <dir>` changes the starting working directory. Overrides the YAML `runtimeDirectory` option. Both \ and / can be specified as the path separators.
+- `--root <dir>` changes the starting working directory. Overrides the YAML `runtimeDirectory` option. Both \ and / can be specified as path separators.
 
 ## Create custom steps
 
@@ -60,7 +58,7 @@ Dozer steps don't need to be written in any particular language. Create an execu
 
 ## Set environment variables from Dozer steps
 
-Sometimes you need to pass data from one step to another. With Dozer you would set an environment variable by outputting a regular standard output line with the syntax `##varName=value#`.
+Sometimes you need to pass data from one step to another. With Dozer, you would set an environment variable by outputting a regular standard output line with the syntax `##varName=value#`.
 
 Node.js:
 ```js
@@ -86,7 +84,7 @@ Please note that `##` cannot be prepended with another output on the same line.
 
 ## Read environment variables in Dozer steps
 
-All environment variables, including the ones you set in previous steps, are obtained the standard way for your language of choice.
+All environment variables, including the ones you set in the previous steps, are obtained the standard way for your language of choice.
 
 Node.js
 ```js
@@ -171,9 +169,9 @@ steps:
   comand: npx semantic-release --no-ci
 ```
 
-# Support
+# Trouble?
 
-Create issues or send email to k@e0.cz
+Discord: (https://discord.gg/JJDxmpVT6v)[https://discord.gg/JJDxmpVT6v]
 
 # Contribute
 
