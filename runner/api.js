@@ -49,8 +49,11 @@ let api = {
     api.clients.push(ws)
     clearTimeout(api.firstUiConnectionTimeout)
 
-    api.runner.updateVars()
-    api.runner.start()
+    api.sendRecap(ws)
+
+    if (!api.runner.running) {
+      api.runner.start()
+    }
   },
 
   sendToAll (body) {
@@ -63,12 +66,8 @@ let api = {
     ws.send(JSON.stringify(body))
   },
 
-  sendEnvironmentVariables () {
-    let allVars = { ...api.runner.addedVars, ...api.runner.collectedEnvVars }
-
-    api.sendToAll({
-      envVars: allVars
-    })
+  sendRecap (ws) {
+    api.sendTo(ws, { recap: api.recap })
   },
 
   sendOutput (step, output) {
@@ -76,7 +75,7 @@ let api = {
     output = output.replace(/`/g, '\'')
     output = output.replace(/\\/g, '/')
 
-    api.recap[step].output.push(output)
+    api.recap[step].output += output
 
     api.sendToAll({
       step: step,
@@ -85,14 +84,26 @@ let api = {
   },
 
   sendStatus (step, status, totalTime) {
+    let vars = { ...api.runner.addedVars, ...h.collectEnvVars() }
+
     api.recap[step].status = status
+
+    if (status == 'progress') {
+      api.recap[step].startVars = vars
+    }
+
+    if ((status == 'failure') || (status == 'success')) {
+      api.recap[step].endVars = vars
+    }
 
     let message = {
       step: step,
-      status: status
+      status: status,
+      vars: vars
     }
 
     if (totalTime) {
+      api.recap[step].totalTime = totalTime
       message.totalTime = totalTime
     }
 

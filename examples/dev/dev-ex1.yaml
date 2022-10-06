@@ -1,0 +1,7 @@
+steps:
+- title: 10 Second Step
+  command: node examples/dev/delayed.js 10
+- title: Instant Step
+  command: echo Hi
+- title: 5 Second Step
+  command: node examples/dev/delayed.js 5

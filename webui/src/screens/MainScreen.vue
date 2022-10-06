@@ -24,61 +24,136 @@
     </div>
 
     <pre id="output" class="terminal">{{ outputs[selectedStep] ? outputs[selectedStep] : 'Waiting for output of ' + steps[selectedStep] + '...' }}</pre>
+
+    <span v-if="connectionStatus && !hasFinished" id="status">{{ connectionStatus }}</span>
   </div>
 </template>
 
 <script>
-  export default {
-    name: 'main',
-    data () {
-      return {
-        vars: {},
-        steps: [],
-        outputs: [],
-        statuses: [],
-        times: [],
-        selectedStep: 0
+export default {
+  data () {
+    return {
+      vars: {},
+      steps: [],
+      outputs: [],
+      statuses: [],
+      times: [],
+      selectedStep: 0,
+      connection: null,
+      connectionStatus: 'Connecting...'
+    }
+  },
+  computed: {
+    output () {
+      if (this.outputs[this.selectedStep]) {
+        return this.outputs[this.selectedStep]
       }
+
+      return 'Waiting for output...'
     },
-    computed: {
-      output () {
-        if (this.outputs[this.selectedStep]) {
-          return this.outputs[this.selectedStep]
+    hasFinished () {
+      if (this.statuses.length) {
+        if ((this.statuses.at(-1) == 'success') || (this.statuses.at(-1) == 'failure')) {
+          return true
+        }
+      }
+      
+      return false
+    }
+  },
+  methods: {
+    indicator (step) {
+      if (this.statuses[step] !== undefined) {
+        switch (this.statuses[step]) {
+          case 'success': return '✔'
+          case 'progress': return '➔'
+          case 'failure': return '✘'
+          default: return '●'
+        }
+      }
+
+      return '●'
+    },
+    appendOutput (index, data) {
+      this.outputs[index] = this.outputs[index] + data
+      this.selectedStep = index
+      this.$forceUpdate()
+
+      window.setTimeout(() => {
+        let el = document.getElementById('output')
+        el.scrollTop = el.scrollHeight
+      }, 250)
+    },
+    connect () {
+      let host = window.location.hash.substring(1) || 'localhost:8220'
+
+      this.connection = new WebSocket(`ws://${host}/`)
+
+      this.connection.onmessage = (event) => {
+        let data = JSON.parse(event.data)
+
+        console.log(data)
+
+        if (data.recap) {
+          this.processRecap(data.recap)
         }
 
-        return 'Waiting for output of ' + this.steps[this.selectedStep] + '...'
-      }
-    },
-    methods: {
-      open (link) {
-        this.$electron.shell.openExternal(link)
-      },
-      indicator (step) {
-        if (this.statuses[step] !== undefined) {
-          switch (this.statuses[step]) {
-            case 'success': return '✔'
-            case 'progress': return '➔'
-            case 'failure': return '✘'
+        if ((data.step !== undefined) && data.output) {
+          this.appendOutput(data.step, data.output)
+        }
+
+        if ((data.step !== undefined) && data.status) {
+          this.statuses[data.step] = data.status
+
+          if (data.totalTime) {
+            this.times[data.step] = data.totalTime
+          }
+
+          if (data.vars) {
+            this.vars = data.vars
           }
         }
+      }
 
-        return '●'
-      },
-      appendOutput (index, data) {
-        this.outputs[index] = this.outputs[index] + data
-        this.selectedStep = index
-        this.$forceUpdate()
+      this.connection.onopen = () => {
+        this.connectionStatus = ''
+      }
 
-        window.setTimeout(() => {
-          let el = document.getElementById('output')
-          el.scrollTop = el.scrollHeight
-        }, 250)
+      this.connection.onclose = () => {
+        this.connectionStatus = 'Disconnected, refresh to reconnect.'
       }
     },
-    created () {
-      window.vueMain = this
+    processRecap (recap) {
+      this.steps = []
+      this.statuses = []
+      this.outputs = []
+      this.times = []
+
+      for (let step of recap) {
+        this.steps.push(step.title)
+        this.statuses.push(step.status)
+        this.outputs.push(step.output)
+
+        if (step.totalTime) {
+          this.times.push(step.totalTime)
+        }
+
+        if (step.startVars) {
+          this.vars = step.startVars
+        }
+
+        if (step.endVars) {
+          this.vars = step.endVars
+        }
+
+        this.selectedStep = step
+      }
     }
+  },
+  created () {
+    this.connect()
   }
+}
 </script>
 
 <style>
@@ -96,7 +171,7 @@
 
   #side {
     width: 200px;
-    height: calc(100vh - 30px);
+    height: 100vh;
     box-sizing: border-box;
     background-color: #252526;
     overflow-x: hidden;
@@ -111,7 +186,7 @@
 
   #output {
     width: calc(100vw - 200px);
-    height: calc(100vh - 30px);
+    height: 100vh;
     box-sizing: border-box;
   }
 
@@ -141,6 +216,7 @@
     margin-bottom: 6px;
     font-size: 14px;
     color: #bbbbbb;
+    cursor: pointer;
   }
 
   .step:hover {
@@ -202,5 +278,16 @@
   }
   ::-webkit-scrollbar-corner {
     background: transparent;
+  }
+
+  #status {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: #3e3e3f;
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: white;
+    font-size: 12px;
   }
 </style>

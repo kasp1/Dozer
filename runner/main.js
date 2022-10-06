@@ -6,7 +6,6 @@ const h = require('./helpers.js')
 const api = require('./api.js')
 
 let runner = {
-  collectedEnvVars: {},
   lastEnv: [],
   yaml: null,
   failure: false,
@@ -15,9 +14,11 @@ let runner = {
   addedVars: {},
   cmdRoot: false,
   provideApi: true,
+  running: false,
 
   init () {
     api.runner = runner
+    runner.parseYaml()
 
     runner.provideApi = !process.argv.includes('--no-api')
     
@@ -46,7 +47,7 @@ let runner = {
     }
 
     // if a UI is desired, wait for it to connect to the API before starting, otherwise start right away
-    if (runner.provideApi) {
+    if (process.argv.includes('--webui') || process.argv.includes('--gui')) {
       api.waitForFirstConnection()
     } else {
       h.log('Starting the pipeline...')
@@ -64,18 +65,8 @@ let runner = {
     }
   },
 
-  collectEnvVars () {
-    let importantVars = [ 'OS', 'TMP', 'HOME', 'JAVA_HOME', 'PROCESSOR_ARCHITECTURE' ]
-
-    for (let v in process.env) {
-      if (importantVars.includes(v)) {
-        runner.collectedEnvVars[v] = process.env[v].replace(/\\/g, '/')
-      }
-    }
-  },
-
   start () {
-    runner.parseYaml()
+    runner.running = true
 
     if (runner.yaml.runtimeDirectory) {
       if (!runner.cmdRoot) {
@@ -92,9 +83,11 @@ let runner = {
   },
 
   async exec (index, step) {
-    h.log('Initiating step', step.displayName)
+    h.log('Initiating step', h.getTitle(step))
 
     if (runner.provideApi) {
+      // wait 1 second before sending another step status over API
+      await new Promise(r => setTimeout(r, 1000))
       api.sendStatus(index, 'progress')
     }
 
@@ -107,7 +100,7 @@ let runner = {
       if (fs.existsSync(step.workingDirectory)) {
         options.cwd = step.workingDirectory
       } else {
-        h.log('ERROR: The working directory specified for step', step.displayName, 'does not exist.')
+        h.log('ERROR: The working directory specified for step', h.getTitle(step), 'does not exist.')
       }
     }
 
@@ -128,7 +121,7 @@ let runner = {
     }
 
     // run the exec
-    h.log('Executing step', step.displayName, ':', step.command)
+    h.log('Executing step', h.getTitle(step), ':', step.command)
 
     runner.startTime = Date.now()
 
@@ -166,17 +159,14 @@ let runner = {
     }
   },
 
-  onStepFinished (stepIndex, step, exitCode) {
+  async onStepFinished (stepIndex, step, exitCode) {
     let totalTime = Math.abs(new Date() - runner.startTime)
     runner.totalTimes.push(totalTime)
     totalTime = h.formatTime(totalTime)
 
-    if (runner.provideApi) {
-      api.sendEnvironmentVariables()
-    }
-
+    // finished successfully
     if (exitCode === 0) {
-      h.log('Sucessfully executed:', step.displayName, 'took', totalTime)
+      h.log('Sucessfully executed:', h.getTitle(step), 'took', totalTime)
 
       if (runner.provideApi) {
         api.sendStatus(stepIndex, 'success', totalTime)
@@ -187,9 +177,11 @@ let runner = {
       } else {
         runner.finish()
       }
+
+    // failed but was skippable
     } else if (step.skippable === true) {
       runner.failure = true
-      h.log('Failure (exit code ' + exitCode + ') during step:', step.displayName, 'took', totalTime)
+      h.log('Failure (exit code ' + exitCode + ') during step:', h.getTitle(step), 'took', totalTime)
 
       if (runner.provideApi) {
         api.sendStatus(stepIndex, 'failure', totalTime)
@@ -200,9 +192,11 @@ let runner = {
       } else {
         runner.finish()
       }
+
+    // failed
     } else {
       runner.failure = true
-      h.log('Failure (exit code ' + exitCode + ') during step:', step.displayName, 'took', totalTime)
+      h.log('Failure (exit code ' + exitCode + ') during step:', h.getTitle(step), 'took', totalTime)
 
       if (runner.provideApi) {
         api.sendStatus(stepIndex, 'failure', totalTime)
@@ -238,11 +232,9 @@ let runner = {
 
     if (runner.provideApi) {
       for (let step in runner.yaml.steps) {
-        let title = runner.yaml.steps[step].title ? runner.yaml.steps[step].title : runner.yaml.steps[step].displayName
-        
         api.recap[step] = {
-          title: title,
-          output: [],
+          title: h.getTitle(runner.yaml.steps[step]),
+          output: '',
           status: 'initial'
         }
       }

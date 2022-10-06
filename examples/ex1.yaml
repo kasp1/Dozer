@@ -1,8 +1,8 @@
 
 steps:
-- displayName: Say Hello
+- title: Say Hello
   command: echo "Hi there!"
 
-- displayName: Multi-line Command
+- title: Multi-line Command
   command: echo "Hi there!"
     "Hello from Paris!"

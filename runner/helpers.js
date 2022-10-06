@@ -73,6 +73,23 @@ let helpers = {
         h.log(e)
       }
     }
+  },
+
+  getTitle (step) {
+    return step.title ? step.title : step.displayName
+  },
+
+  collectEnvVars () {
+    let importantVars = [ 'OS', 'TMP', 'HOME', 'JAVA_HOME', 'PROCESSOR_ARCHITECTURE' ]
+    let collectedVars = {}
+
+    for (let v in process.env) {
+      if (importantVars.includes(v)) {
+        collectedVars[v] = process.env[v].replace(/\\/g, '/')
+      }
+    }
+
+    return collectedVars
   }
 }
 

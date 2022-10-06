@@ -1,15 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory(),
   routes: [
     {
       path: '/',
       name: 'main',
-      component: require('@/screens/Main.vue').default
+      component: require('@/screens/MainScreen.vue').default
     },
     {
-      path: '*',
+      path: "/.*/g",
       redirect: '/'
     }
   ]

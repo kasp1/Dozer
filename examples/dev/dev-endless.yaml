@@ -1,0 +1,7 @@
+steps:
+- title: Echo Hi
+  command: echo Hi
+- title: Almost Endless Step
+  command: ping -n 10000000 google.com
+- title: Echo Boo
+  command: echo Boo

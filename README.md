@@ -41,9 +41,9 @@ steps:
   command: java.exe
     -version # can be multi-line
 
-- title: Gist Step # This step automatically downloads the linked code and saves it under the temporary directory.
-  command: node ${TMP}/dozer-create-CI_NODE_VERSION.js
-  code: https://gist.githubusercontent.com/kasp1/9efbc3afc32783d34a903aebe1d3b734/raw/56ae650b3e80db7c5072af67965f94587158b243/dozer-create-CI_NODE_VERSION.js
+- title: Downloaded Script # This step automatically downloads the linked code and saves it under the temporary directory.
+  command: node ${TMP}/delayed.js 5
+  code: https://raw.githubusercontent.com/kasp1/Dozer/v4/examples/dev/delayed.js
 ```
 
 ## Run Dozer
@@ -217,10 +217,10 @@ The source code of the *WebUI* is in the `webui` folder. Each time you want to t
 
 Unless the `--no-api` command line argument is specified on the *Dozer Runner*, it will open the Websockets API for any custom UI or scripts to connect and get information about the pipeline's progress.
 
-The communication messages are *stringified* JSONs. Any newly connected client will automatically receive the `recap` message, which contains the list of pipeline steps and their *up-to-date* statuses and logs, and environment variables before and after their exeuction. Afterwards, there will be automatically coming messages when a step will change its status, when a step has a new output, and periodic updates about environment variables (between each step).
+The communication messages are *stringified* JSONs. Any newly connected client will automatically receive the `recap` message, which contains the list of pipeline steps and their *up-to-date* statuses and logs, and environment variables before and after their execution. Afterward, there will be automatically coming messages when a step will change its status when a step has a new output and periodic updates about environment variables (between each step).
 
 If the incoming message contains the `{ "recap": ... }` key, it will contain information about each step in the pipeline and its *up-to-date* history.
 
 If the incoming message contains `{ "step": ..., "output": ... }` keys, it will contain a new `output` content to be attached to the output history of the specified `step`.
 
-In the event of a step finishing, a message will arrive containing the `{ "step": ..., "status": ..., "totalTime": ..., "envVars": ...  }` keys. `totalTime` is the time which the step took to execute in milliseconds.
+In the event of a step finishing, a message will arrive containing the `{ "step": ..., "status": ..., "totalTime": ..., "vars": ...  }` keys. If total `totalTime` is present, it is the time that the step took to execute in milliseconds.

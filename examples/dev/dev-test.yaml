@@ -1,0 +1,16 @@
+steps:
+- title: 10 Second Step
+  command: node examples/dev/delayed.js 10
+- title: Instant Step
+  command: echo Hi
+- title: 100K Messages
+  command: node examples/dev/100K.js
+- title: Downloaded Step
+  command: node ${TMP}/delayed.js 5
+  code: https://raw.githubusercontent.com/kasp1/Dozer/v4/examples/dev/delayed.js
+- title: New Variable
+  command: echo "##CI_TEST=Hello#"
+- title: 5 Second Step
+  command: node examples/dev/delayed.js 5
+- title: Use Variable
+  command: echo %CI_TEST%
