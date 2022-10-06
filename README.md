@@ -1,21 +1,30 @@
-# Dozer Simple CI/CD Runner
+![](resources/banner/banner512x256.png)
 
-> Simple continuous integration runner.
+> Dozer, a simple continuous integration / deployment / delivery / task runner (CI/CD).
 
 Useful if:
 - You don't have your own server existing cloud CI/CD options seem like overkill.
 - Existing cloud CI/CD options are not suitable for some reason (e.g. too hardware demanding runs).
-- You want to use command line tools that are hard to install over command line.
+- You want to use command line tools that are hard to install on cloud runners.
 - Your environment is already set up and you want to save time installing all tools on each CI/CD run.
 - You want to develop and test your CI/CD steps on your localhost before uploading the scripts to a cloud CI/CD.
 
-The GUI window is optional.
+The GUI is optional. Dozer can be also run on servers.
 
-![](screenshots/3.png)
+![](resources/screenshots/3.png)
 
 # Quick Start
 
-## Create CI/CD workflow 
+## Install
+
+0. If you have Dozer 3 or earlier installed, uninstall it first (find Dozer in the Apps & Features dialog, click it and select Uninstall).
+1. Download a release archive for your platform from the [Releases page](https://github.com/kasp1/Dozer/releases) and unzip it to a safe folder.
+2. Add that folder to your PATH.
+    - [How to add to PATH on Windows](https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-2010/ee537574(v=office.14)) 
+    - [How to add to PATH on Linux](https://linuxize.com/post/how-to-add-directory-to-path-in-linux/)
+    - [How to add to PATH on MacOS](https://www.architectryan.com/2012/10/02/add-to-the-path-on-mac-os-x-mountain-lion/)
+
+## Create CI/CD workflow
 
 And save it as a YAML file in your project's directory, for example, **ci.yaml**:
 
@@ -23,16 +32,16 @@ And save it as a YAML file in your project's directory, for example, **ci.yaml**
 runtimeDirectory: C:/somewhere # optional, default: current working directory
 
 steps:
-- displayName: Print Node Version # any display name
+- title: Print Node Version # any display name
   command: node -v # CLI command to run
 
-- displayName: Another step
+- title: Another step
   workingDirectory: C:/Program Files/Java/jdk1.8.0_211/bin
   skippable: true # the execution will continue on failure of this step
   command: java.exe
     -version # can be multi-line
 
-- displayName: Gist Step # This step automatically downloads the linked code and saves it under the temporary directory.
+- title: Gist Step # This step automatically downloads the linked code and saves it under the temporary directory.
   command: node ${TMP}/dozer-create-CI_NODE_VERSION.js
   code: https://gist.githubusercontent.com/kasp1/9efbc3afc32783d34a903aebe1d3b734/raw/56ae650b3e80db7c5072af67965f94587158b243/dozer-create-CI_NODE_VERSION.js
 ```
@@ -42,15 +51,18 @@ steps:
 Then in your project's directory, run the following command:
 
 ```bash
-dozer ci.yaml # --gui
+dozer ci.yaml # [--gui|--webui|--no-api]
 ```
-
-Remove the hash if you want Dozer to display the GUI as well.
 
 ## Command line arguments
 
-- `--gui` opens the user interface.
-- `--root <dir>` changes the starting working directory. Overrides the YAML `runtimeDirectory` option. Both \ and / can be specified as path separators.
+- `--gui` opens a native user interface window.
+- `--webui` opens web user interface in a browser tab.
+- `--no-api` disables the websockets API, no UI can connect and display the progress and outputs.
+- `--api-port <number>` changes the port that the user interfaces should connect to, `8220` by default.
+- `--root <dir>` changes the starting working directory. Overrides the YAML `runtimeDirectory` option. Both `\` and `/` can be specified as path separators.
+
+> Warning: it is a bad practice and a security risk to have your pipeline steps output sensitive data. If you don't specify the `--no-api` argument while running Dozer, and if the machine's IP is public, anyone in the world can connect to the Dozer runner and see the output logs. For ease of use, Dozer will open the UI API by default.
 
 ## Create custom steps
 
@@ -171,34 +183,44 @@ steps:
 
 # Trouble?
 
-Discord: (https://discord.gg/JJDxmpVT6v)[https://discord.gg/JJDxmpVT6v]
+Discord: [https://discord.gg/JJDxmpVT6v](https://discord.gg/JJDxmpVT6v)
 
 # Contribute
 
-## Build Setup
+## Dozer Runner
 
-``` bash
-# install dependencies
-npm install
+### Setup
 
-# serve with hot reload at localhost:9080
-npm run dev
+0. Make sure you have [Node.js](https://nodejs.org) installed.
+1. Clone the repository.
+2. In a terminal, change to the `runner` directory.
+3. Run `npm i` to install dependencies.
 
-# build electron application for production
-npm run build
+### Develop
 
+The source code of the *runner* is in the `runner` folder. Each time you want to test, execute `node main.js ci.yaml` the same way as you would execute `dozer ci.yaml`.
 
-# lint all JS/Vue component files in `src/`
-npm run lint
+## Dozer WebUI
 
-```
+### Setup
 
-While debugging with npm, command line options can be added after `--`, e.g.:
+0. Make sure you have [Node.js](https://nodejs.org) and [Vue CLI](https://cli.vuejs.org/) installed.
+1. Clone the repository.
+2. In a terminal, change to the `webui` directory.
+3. Run `npm i` to install dependencies.
 
-``` bash
-npm run dev -- ci.yaml --gui --root C:\rootdir
-```
+### Develop
 
----
+The source code of the *WebUI* is in the `webui` folder. Each time you want to test, execute `node run serve`, which will make the Vue CLI open the *WebUI* in a browser window in a hot-reload mode.
 
-This project was generated with [electron-vue](https://github.com/SimulatedGREG/electron-vue)@[45a3e22](https://github.com/SimulatedGREG/electron-vue/tree/45a3e224e7bb8fc71909021ccfdcfec0f461f634) using [vue-cli](https://github.com/vuejs/vue-cli). Documentation about the original structure can be found [here](https://simulatedgreg.gitbooks.io/electron-vue/content/index.html).
+## Websockets API
+
+Unless the `--no-api` command line argument is specified on the *Dozer Runner*, it will open the Websockets API for any custom UI or scripts to connect and get information about the pipeline's progress.
+
+The communication messages are *stringified* JSONs. Any newly connected client will automatically receive the `recap` message, which contains the list of pipeline steps and their *up-to-date* statuses and logs, and environment variables before and after their exeuction. Afterwards, there will be automatically coming messages when a step will change its status, when a step has a new output, and periodic updates about environment variables (between each step).
+
+If the incoming message contains the `{ "recap": ... }` key, it will contain information about each step in the pipeline and its *up-to-date* history.
+
+If the incoming message contains `{ "step": ..., "output": ... }` keys, it will contain a new `output` content to be attached to the output history of the specified `step`.
+
+In the event of a step finishing, a message will arrive containing the `{ "step": ..., "status": ..., "totalTime": ..., "envVars": ...  }` keys. `totalTime` is the time which the step took to execute in milliseconds.

@@ -49,12 +49,6 @@ let api = {
     api.clients.push(ws)
     clearTimeout(api.firstUiConnectionTimeout)
 
-    ws.on('message', function message(data) {
-      console.log('received: %s', data)
-    });
-
-    ws.send('something')
-
     api.runner.updateVars()
     api.runner.start()
   },
