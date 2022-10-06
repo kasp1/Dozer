@@ -4,7 +4,7 @@ steps:
 - title: Instant Step
   command: echo Hi
 - title: 100K Messages
-  command: node examples/dev/100K.js
+  command: node examples/dev/100K.js 30
 - title: Downloaded Step
   command: node ${TMP}/delayed.js 5
   code: https://raw.githubusercontent.com/kasp1/Dozer/v4/examples/dev/delayed.js

@@ -104,28 +104,28 @@ let runner = {
       }
     }
 
-    // download gist if necessary
+    // download if necessary
     if (step.code) {
-      await h.downloadGist(step.code)
+      await h.download(step.code)
     }
 
     let command = step.command
 
     // replace variables in the command with values
     for (let v in process.env) {
-      command = command.replace(new RegExp('$' + v, 'g'), process.env[v])
+      command = command.replace(new RegExp('\\${' + v + '}', 'gm'), process.env[v])
     }
 
     for (let v in runner.addedVars) {
-      command = command.replace(new RegExp('$' + v, 'g'), runner.addedVars[v])
+      command = command.replace(new RegExp('\\${' + v + '}', 'gm'), runner.addedVars[v])
     }
 
     // run the exec
-    h.log('Executing step', h.getTitle(step), ':', step.command)
+    h.log('Executing step', h.getTitle(step) + ':', command)
 
     runner.startTime = Date.now()
 
-    let proc = exec(`${step.command}`, { windowsVerbatimArguments: true, ...options })
+    let proc = exec(`${command}`, { windowsVerbatimArguments: true, ...options })
 
     proc.stdout.setEncoding('utf8')
     proc.stderr.setEncoding('utf8')
@@ -152,10 +152,10 @@ let runner = {
       }
     } else {
       console.log(data.toString().trim())
-    }
     
-    if (runner.provideApi) {
-      api.sendOutput(step, data.toString())
+      if (runner.provideApi) {
+        api.sendOutput(step, data.toString())
+      }
     }
   },
 

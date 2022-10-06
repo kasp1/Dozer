@@ -1,7 +1,7 @@
-
 const path = require('path')
 const os = require('os')
 const Axios = require('axios')
+const fs = require('fs')
 
 let helpers = {
   log (...args) {
@@ -52,26 +52,25 @@ let helpers = {
     return (millis / 1000) + 's'
   },
 
-  async downloadGist (url) {
+  async download (url) {
     let fileName = url.split('/')
     fileName = fileName[fileName.length - 1]
 
     let filePath = path.join(os.tmpdir(), fileName)
 
-    if (fs.existsSync(filePath)) {
-      h.log('Downloading code...')
+    helpers.log('Downloading code...')
 
-      try {
-        let response = await Axios.get(url)
+    try {
+      let response = await Axios.get(url)
 
-        if (response.status === 200) {
-          fs.writeFileSync(filePath, response.data)
-        } else {
-          h.log(`ERROR: Couldn't download code (HTTP error ${response.status})`)
-        }
-      } catch (e) {
-        h.log(e)
+      if (response.status === 200) {
+        helpers.log('Saving code to:', filePath)
+        fs.writeFileSync(filePath, response.data)
+      } else {
+        helpers.log(`ERROR: Couldn't download code (HTTP error ${response.status})`)
       }
+    } catch (e) {
+      helpers.log(e)
     }
   },
 
