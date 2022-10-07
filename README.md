@@ -17,7 +17,7 @@ The GUI is optional. Dozer can be also run on servers.
 
 ## Install
 
-0. If you have Dozer 3 or earlier installed, uninstall it first (find Dozer in the Apps & Features dialog, click it and select Uninstall).
+0. If you have Dozer 3 or earlier installed, uninstall it first (find Dozer in the *Apps & Features* settings dialog, click it and select Uninstall).
 1. Download a release archive for your platform from the [Releases page](https://github.com/kasp1/Dozer/releases) and unzip it to a safe folder.
 2. Add that folder to your PATH.
     - [How to add to PATH on Windows](https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-2010/ee537574(v=office.14)) 
@@ -56,9 +56,12 @@ dozer ci.yaml # [--gui|--webui|--no-api]
 
 ## Command line arguments
 
-- `--gui` opens a native user interface window.
-- `--webui` opens web user interface in a browser tab.
-- `--no-api` disables the websockets API, no UI can connect and display the progress and outputs.
+- `--gui` opens a native user interface window by running the `dozerui` command.
+- `--gui <command|path>` opens a native user interface window with the specified command or path to binary.
+- `--webui` starts an internal web server and opens the web user interface in a browser tab.
+- `--webui-port` defines the port for the internal web user interface server to start on, `8221` by default.
+- `--webui <url>` will open an external web user interface by the specified URL in a browser tab, won't start an internal web server.
+- `--no-api` disables the Websockets API, no UI will be able to connect and display the progress and outputs.
 - `--api-port <number>` changes the port that the user interfaces should connect to, `8220` by default.
 - `--root <dir>` changes the starting working directory. Overrides the YAML `runtimeDirectory` option. Both `\` and `/` can be specified as path separators.
 
@@ -198,7 +201,13 @@ Discord: [https://discord.gg/JJDxmpVT6v](https://discord.gg/JJDxmpVT6v)
 
 ### Develop
 
-The source code of the *runner* is in the `runner` folder. Each time you want to test, execute `node main.js ci.yaml` the same way as you would execute `dozer ci.yaml`.
+The source code of the *runner* is in the `runner` folder. Each time you want to test, execute `node runner/main.js ci.yaml` the same way as you would execute `dozer ci.yaml`.
+
+The `examples/dev` contains a few pipelines handy for development.
+
+Before using the `--webui` argument, you need to make sure the *Web UI* is built under `dist/webui` (please see how to build it below). Alternatively, you can specify another webui directory for *Dozer Runner* to serve the *Web UI* files from by setting the `DOZER_DEV_WEBUI_DIR` to a directory containing the files (e.g. in the existing Dozer installation in your system). Another alternative would be specifying the URL to a third-party *Web UI* page, e.g. `--webui http://localhost:8080/#localhost:8220`, which won't start the *Web UI* file server but will just open a browser tab for you.
+
+Before using `--gui`, you need to make sure the `dozerui` command exists on your system. If the command is not present in your system `PATH` environment variable, you can specify a direct path to the *Native UI* binary as `--gui path/to/binary`. The same way you can also guide the *Dozer Runner* to start any other command present on your system, e.g. `--gui customui`.
 
 ## Dozer WebUI
 
@@ -212,6 +221,10 @@ The source code of the *runner* is in the `runner` folder. Each time you want to
 ### Develop
 
 The source code of the *WebUI* is in the `webui` folder. Each time you want to test, execute `node run serve`, which will make the Vue CLI open the *WebUI* in a browser window in a hot-reload mode.
+
+### Build
+
+In the `webui` folder, execute `node run serve`. The built files should appear under `../dist/webui`.
 
 ## Websockets API
 

@@ -1,12 +1,12 @@
 const fs = require('fs')
 const YAML = require('yaml')
 const { exec } = require('child_process')
+const open = require('open')
 
 const h = require('./helpers.js')
 const api = require('./api.js')
 
 let runner = {
-  lastEnv: [],
   yaml: null,
   failure: false,
   startTime: null,
@@ -16,17 +16,9 @@ let runner = {
   provideApi: true,
   running: false,
 
-  init () {
+  async init () {
     api.runner = runner
     runner.parseYaml()
-
-    runner.provideApi = !process.argv.includes('--no-api')
-    
-    if (runner.provideApi) {
-      api.init()
-    } else {
-      h.log('The --no-api argument has been specified, UI API will not start.')
-    }
 
     // use a pipeline-level working directory if specified
     if (process.argv.includes('--root')) {
@@ -46,6 +38,15 @@ let runner = {
       }
     }
 
+    runner.provideApi = !process.argv.includes('--no-api')
+    
+    if (runner.provideApi) {
+      api.init()
+    } else {
+      h.log('The --no-api argument has been specified, UI API will not start.')
+      return
+    }
+
     // if a UI is desired, wait for it to connect to the API before starting, otherwise start right away
     if (process.argv.includes('--webui') || process.argv.includes('--gui')) {
       api.waitForFirstConnection()
@@ -56,12 +57,34 @@ let runner = {
 
     // starts the webserver and serves the Web UI
     if (process.argv.includes('--webui')) {
+      let webuiArgPos = process.argv.indexOf('--webui')
+      let webuiUrl = process.argv[webuiArgPos + 1]
 
+      if (webuiUrl) {
+        if (!webuiUrl.startsWith('--')) {
+          open(webuiUrl)
+        } else {
+          await h.serveWebUi()
+        }
+      } else {
+        await h.serveWebUi()
+      }
     }
 
     // will try to start the Native UI by command
     if (process.argv.includes('--gui')) {
-      
+      let guiArgPos = process.argv.indexOf('--gui')
+      let guiCommand = process.argv[guiArgPos + 1]
+
+      if (guiCommand) {
+        if (!guiCommand.startsWith('--')) {
+          exec(guiCommand)
+        } else {
+          exec('dozerui')
+        }
+      } else {
+        exec('dozerui')
+      }
     }
   },
 

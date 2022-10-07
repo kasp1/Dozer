@@ -11,27 +11,8 @@ let api = {
   recap: [],
 
   init () {
-    let port = 8220
-
-    if (process.argv.includes('--api-port')) {
-      let apiPortArgPos = process.argv.indexOf('--api-port')
-      let apiPort = process.argv[apiPortArgPos + 1]
-
-      if (apiPort) {
-        let newPort = parseInt(apiPort)
-
-        if (newPort.isInteger()) {
-          port = newPort
-        } else {
-          h.log('The --api-port argument has been specified but was not followed by a valid integer. Ignoring.', apiPort)
-        }
-      } else {
-        h.log('The --api-port argument has been specified but was not followed by a port number. Ignoring.')
-      }
-    }
-
-    h.log('Starting API on', port)
-    const wss = new WebSocketServer({ port: port })
+    h.log('Starting API on', h.getApiPort())
+    const wss = new WebSocketServer({ port: h.getApiPort() })
     wss.on('connection', api.connected)
   },
 

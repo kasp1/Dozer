@@ -2,6 +2,8 @@ const path = require('path')
 const os = require('os')
 const Axios = require('axios')
 const fs = require('fs')
+const open = require('open')
+const express = require('express')
 
 let helpers = {
   log (...args) {
@@ -89,6 +91,55 @@ let helpers = {
     }
 
     return collectedVars
+  },
+
+  getPort (arg, port) {
+    if (process.argv.includes(arg)) {
+      let portArgPos = process.argv.indexOf(arg)
+      let portArgValue = process.argv[portArgPos + 1]
+
+      if (portArgValue) {
+        let newPort = parseInt(portArgValue)
+
+        if (newPort.isInteger()) {
+          port = newPort
+        } else {
+          h.log(`The ${arg} argument has been specified but was not followed by a valid integer. Ignoring.`, portArgValue)
+        }
+      } else {
+        h.log(`The ${arg} argument has been specified but was not followed by a port number. Ignoring.`)
+      }
+    }
+
+    return port
+  },
+
+  getApiPort () {
+    return helpers.getPort('--api-port', 8220)
+  },
+
+  getWebuiPort () {
+    return helpers.getPort('--webui-port', 8221)
+  },
+
+  async serveWebUi () {
+    let port = helpers.getWebuiPort()
+
+    let server = express()
+
+    if (process.env['DOZER_DEV_WEBUI_DIR']) {
+      server.use(express.static(process.env['DOZER_DEV_WEBUI_DIR']))
+
+      helpers.log('Serving WebUI from', process.env['DOZER_DEV_WEBUI_DIR'])
+    } else {
+      server.use(express.static(path.join(__dirname, 'webui')))
+    }
+    
+    server.listen(port)
+
+    helpers.log('Serving WebUI on', port)
+
+    open(`http://localhost:${port}/#localhost:${helpers.getApiPort()}`)
   }
 }
 
