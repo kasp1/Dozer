@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="2000"
+   height="500"
+   viewBox="0 0 529.16668 132.29167"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1.2 (b8e25be833, 2022-02-05)"
+   sodipodi:docname="logo.svg"
+   inkscape:export-filename="D:\Dozer\resources\logo\logo-dark150.png"
+   inkscape:export-xdpi="7.2959995"
+   inkscape:export-ydpi="7.2959995"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#505050"
+     bordercolor="#ffffff"
+     borderopacity="1"
+     inkscape:pageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     units="px"
+     inkscape:snap-bbox="true"
+     inkscape:object-paths="true"
+     inkscape:snap-smooth-nodes="true"
+     inkscape:zoom="0.32026165"
+     inkscape:cx="1081.9279"
+     inkscape:cy="240.42842"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     inkscape:window-x="-8"
+     inkscape:window-y="32"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1">
+    <inkscape:grid
+       type="xygrid"
+       id="grid824" />
+  </sodipodi:namedview>
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       id="path859"
+       style="fill:#2a7fff;stroke:none;stroke-width:0.999999px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 90,330 c -79.999998,0 -79.999998,120 0,120 h 220 c 80,4e-5 80,-120 0,-120 z m 0,30 h 20 c 40,0 40,60.00004 0,60 H 90 c -39.999997,0 -39.999997,-60 0,-60 z m 100,0 h 20 c 40,0 40,60.00004 0,60 h -20 c -40,0 -40,-60 0,-60 z m 100,0 h 20 c 40,0 40,60.00004 0,60 h -20 c -40,0 -40,-60 0,-60 z"
+       transform="scale(0.26458333)" />
+    <path
+       style="fill:#2a7fff;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 124.35416,39.687503 c -5.29166,5.291664 -10.58333,26.45833 -10.58333,31.749999 V 97.89583 c 0,5.29167 5.29167,15.875 10.58333,21.16667 1.32292,1.32292 -7.93749,2.64583 -10.58333,0 -5.29166,-5.29167 -10.58333,-15.875 -10.58333,-21.16667 V 71.437502 c 0,-5.291669 10.58333,-26.458335 15.87499,-31.749999 2.64584,-2.645836 6.61459,-1.32292 5.29167,0 z"
+       id="path1111"
+       sodipodi:nodetypes="ccccccccc" />
+    <path
+       id="path1245"
+       style="fill:#2a7fff;stroke:none;stroke-width:0.999999px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 105,50 C 95.000001,50 90.000001,55 85,70 L 55,190 c -4.999997,20 -5,25 -5,35 v 65 c 0,10 10.000001,20 20,20 h 280 c 10,0 20,-10 20,-20 v -60 c 0,-10 -10,-20 -20,-20 h -20 v -70 c 0,-15.00001 -20,-15 -20,0 v 70 h -30 c -10,0 -10,0 -15,-20 L 235,70 C 230,55 225,50 215,50 Z m 35,30.000001 h 40 c 10.00001,0 15,5 20,19.999999 l 25,90 c 5,15 0,20 -10,20 H 105 c -9.999996,0 -14.999997,-5 -9.999996,-20 L 120,100 c 5,-14.999999 10.00001,-19.999999 20,-19.999999 z"
+       transform="scale(0.26458333)"
+       sodipodi:nodetypes="scsssssssscsscsscssssccssccs" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:157.899px;line-height:1.25;font-family:'Sitka Banner';-inkscape-font-specification:'Sitka Banner';fill:#333333;stroke-width:0.822386"
+       x="133.55467"
+       y="117.4928"
+       id="text27594"><tspan
+         sodipodi:role="line"
+         id="tspan27592"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:157.899px;font-family:Rajdhani;-inkscape-font-specification:'Rajdhani Bold';fill:#333333;stroke-width:0.822386"
+         x="133.55467"
+         y="117.4928">Dozer</tspan></text>
+  </g>
+</svg>
