@@ -1,4 +1,4 @@
-name: example
+name: dozer
 description: Showcase App for Fluent UI package for Flutter
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
