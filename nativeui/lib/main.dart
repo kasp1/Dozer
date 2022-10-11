@@ -8,7 +8,7 @@ import 'package:window_manager/window_manager.dart';
 
 import 'model/pipeline.dart';
 import 'model/theme.dart';
-import 'package:dozer/views/pipeline_page.dart';
+import 'package:dozer/views/pipeline_screen.dart';
 
 /// Checks if the current environment is a desktop environment.
 bool get isDesktop {
@@ -42,8 +42,8 @@ void main() async {
         TitleBarStyle.hidden,
         windowButtonVisibility: false,
       );
-      await windowManager.setSize(const Size(800, 600));
-      await windowManager.setMinimumSize(const Size(350, 600));
+      await windowManager.setSize(const Size(1000, 800));
+      await windowManager.setMinimumSize(const Size(800, 600));
       await windowManager.center();
       await windowManager.show();
       await windowManager.setPreventClose(true);
@@ -104,7 +104,7 @@ class Dozer extends StatelessWidget {
             );
           },
           initialRoute: '/',
-          routes: {'/': (context) => const PipelinePage()},
+          routes: {'/': (context) => const PipelineScreen()},
         );
       },
     );

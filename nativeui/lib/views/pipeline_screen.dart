@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:dozer/debounce.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -14,14 +15,14 @@ import 'package:dozer/model/pipeline.dart';
 import 'package:dozer/model/theme.dart';
 import 'package:dozer/views/widgets/link_pane_item.dart';
 
-class PipelinePage extends StatefulWidget {
-  const PipelinePage({Key? key}) : super(key: key);
+class PipelineScreen extends StatefulWidget {
+  const PipelineScreen({Key? key}) : super(key: key);
 
   @override
-  _PipelinePageState createState() => _PipelinePageState();
+  _PipelineScreenState createState() => _PipelineScreenState();
 }
 
-class _PipelinePageState extends State<PipelinePage> with WindowListener {
+class _PipelineScreenState extends State<PipelineScreen> with WindowListener {
   WebSocketChannel connection = WebSocketChannel.connect(
     Uri.parse('ws://localhost:8220/'),
   );
@@ -167,31 +168,47 @@ class _PipelinePageState extends State<PipelinePage> with WindowListener {
           }(),
           actions: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
             executionStatusNotification(pipeline.executionStatus),
-            IconButton(
-                icon: pipeline.followExecution
-                    ? Icon(FluentIcons.pinned_solid, color: Colors.blue)
-                    : Icon(FluentIcons.pinned, color: theme.iconTheme.color),
-                onPressed: () => pipeline.toggleFollowExecution()),
-            IconButton(
-                icon: const Icon(FluentIcons.copy),
-                onPressed: () => FlutterClipboard.copy(pipeline
-                    .filteredOuptut(pipeline[pipeline.selectedStep].output))),
+            Tooltip(
+                message: 'Automatically follow pipeline progress.',
+                child: IconButton(
+                    icon: pipeline.followExecution
+                        ? Icon(FluentIcons.pinned_solid, color: Colors.blue)
+                        : Icon(FluentIcons.pinned,
+                            color: theme.iconTheme.color),
+                    onPressed: () => pipeline.toggleFollowExecution())),
+            Tooltip(
+                message: 'Copy output or filtered output.',
+                child: IconButton(
+                    icon: const Icon(FluentIcons.copy),
+                    onPressed: () => FlutterClipboard.copy(
+                        pipeline.filteredOuptut(
+                            pipeline[pipeline.selectedStep].output)))),
             if (pipeline.length > 0)
               if (pipeline[pipeline.selectedStep].startVars.isNotEmpty)
-                IconButton(
-                    icon: const Icon(FluentIcons.align_horizontal_left),
-                    onPressed: () {}),
+                Tooltip(
+                    message: 'Environment variables the process started with.',
+                    child: IconButton(
+                        icon: const Icon(FluentIcons.align_horizontal_left),
+                        onPressed: () => showVariablesDialog(context,
+                            title: 'Starting Variables',
+                            vars: pipeline[pipeline.selectedStep].startVars))),
             if (pipeline.length > 0)
               if (pipeline[pipeline.selectedStep].endVars.isNotEmpty)
-                IconButton(
-                    icon: const Icon(FluentIcons.align_horizontal_right),
-                    onPressed: () {}),
+                Tooltip(
+                    message: 'Environment variables the process finished with.',
+                    child: IconButton(
+                        icon: const Icon(FluentIcons.align_horizontal_right),
+                        onPressed: () => showVariablesDialog(context,
+                            title: 'Finishing Variables',
+                            vars: pipeline[pipeline.selectedStep].endVars))),
             Padding(
                 padding: const EdgeInsetsDirectional.only(end: 10),
                 child: IconButton(
-                    icon: Icon(FluentTheme.of(context).brightness.isDark
-                        ? FluentIcons.sunny
-                        : FluentIcons.clear_night),
+                    icon: Tooltip(
+                        message: 'Switch between dark and light mode.',
+                        child: Icon(FluentTheme.of(context).brightness.isDark
+                            ? FluentIcons.sunny
+                            : FluentIcons.clear_night)),
                     onPressed: () {
                       if (appTheme.mode == ThemeMode.light) {
                         appTheme.mode = ThemeMode.dark;
@@ -341,7 +358,9 @@ class _PipelinePageState extends State<PipelinePage> with WindowListener {
       case ExecutionStatus.success:
         return Padding(
             padding: const EdgeInsets.only(left: 10, right: 10),
-            child: Icon(FluentIcons.skype_check, color: Colors.teal));
+            child: Tooltip(
+                message: 'The pipeline succeeded.',
+                child: Icon(FluentIcons.skype_check, color: Colors.teal)));
       case ExecutionStatus.progress:
         return const SizedBox(width: 0, child: Text(''));
       case ExecutionStatus.disconnected:
@@ -354,9 +373,64 @@ class _PipelinePageState extends State<PipelinePage> with WindowListener {
       case ExecutionStatus.failure:
         return const Padding(
             padding: EdgeInsets.only(left: 10, right: 10),
-            child: Icon(FluentIcons.error_badge12,
-                color: Colors.warningPrimaryColor));
+            child: Tooltip(
+                message: 'The pipeline failed.',
+                child: Icon(FluentIcons.error_badge12,
+                    color: Colors.warningPrimaryColor)));
     }
+  }
+
+  void showVariablesDialog(BuildContext context,
+      {required String title, required Map<String, String> vars}) async {
+    await showDialog<String>(
+      context: context,
+      builder: (context) => ContentDialog(
+        title: Text(title),
+        content: Column(
+          children: [
+            const Padding(
+                padding: EdgeInsets.only(bottom: 30),
+                child: Text(
+                  'Only selected variables are displayed below: OS, TMP, HOME, JAVA_HOME, PROCESSOR_ARCHITECTURE, and variables added by pipeline steps.',
+                  style: TextStyle(color: Color.fromARGB(255, 128, 128, 128)),
+                )),
+            Table(
+              children: List<TableRow>.generate(
+                vars.length,
+                (index) => TableRow(
+                  children: [
+                    TableCell(
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 20),
+                        child: Text(
+                          vars.keys.toList()[index],
+                          style: const TextStyle(
+                              fontSize: 11,
+                              fontFeatures: [FontFeature.tabularFigures()]),
+                        ),
+                      ),
+                    ),
+                    TableCell(
+                      child: Text(vars.values.toList()[index],
+                          style: const TextStyle(
+                              fontSize: 11,
+                              fontFeatures: [FontFeature.tabularFigures()])),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          FilledButton(
+            child: const Text('Close'),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
+      ),
+    );
+    setState(() {});
   }
 }
 
