@@ -14,7 +14,22 @@ archive.on('error', (err) => console.log(err))
 
 archive.pipe(output)
 
-archive.file('dist/dozer-win.exe', { name: 'dozer.exe' })
+let files = {
+  'dist/dozer-win.exe': 'dozer.exe',
+  'dist/dozerui-win.exe': 'dozerui.exe'
+}
+
+for (let file in files) {
+  archive.file(file, { name: files[file] })
+}
+
+for (let name of fs.readdirSync('dist')) {
+  console.log(name)
+  if (name.includes('.dll')) {
+    archive.file('dist/' + name, { name: name })
+  }
+}
+
 archive.directory('dist/webui/', 'webui')
 
 archive.finalize()

@@ -21,5 +21,15 @@ steps:
 - displayName: Build WebUI
   command: cd "webui" && npm run build
 
+- displayName: Install NativeUI Dependencies
+  command: cd "nativeui" && flutter pub get
+
+- displayName: Build NativeUI
+  command: cd "nativeui" && flutter build windows
+
+- displayName: Copy Windows Build
+  command: copy nativeui\build\windows\runner\Release\dozerui.exe dist\dozerui-win.exe && 
+    copy nativeui\build\windows\runner\Release\*.dll dist\
+
 - displayName: Package Windows Build
   command: node CI/archive-windows.js
