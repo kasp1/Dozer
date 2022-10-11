@@ -1,0 +1,5 @@
+steps:
+- title: 10 Second Step
+  command: node examples/dev/delayed.js 10
+- title: Failing Step
+  command: exit /b 1

@@ -61,6 +61,10 @@ class _PipelinePageState extends State<PipelinePage> with WindowListener {
                 pipeline.title = recapStep['title'];
               }
 
+              if (status == StepStatus.failure) {
+                pipeline.executionStatus = ExecutionStatus.failure;
+              }
+
               if (recapStep.containsKey('totalTime')) {
                 step.time = recapStep['totalTime'];
               }
@@ -96,16 +100,17 @@ class _PipelinePageState extends State<PipelinePage> with WindowListener {
 
           if (json.containsKey('step') && json.containsKey('status')) {
             var index = json['step'];
+            StepStatus status = pipeline.strToStepStatus(json['status']);
+
+            if (status == StepStatus.failure) {
+              pipeline.executionStatus = ExecutionStatus.failure;
+            }
 
             if (json.containsKey('totalTime')) {
               pipeline.updateStatus(
-                  stepIndex: index,
-                  status: pipeline.strToStepStatus(json['status']),
-                  time: json['totalTime']);
+                  stepIndex: index, status: status, time: json['totalTime']);
             } else {
-              pipeline.updateStatus(
-                  stepIndex: index,
-                  status: pipeline.strToStepStatus(json['status']));
+              pipeline.updateStatus(stepIndex: index, status: status);
             }
           }
         },
@@ -113,9 +118,13 @@ class _PipelinePageState extends State<PipelinePage> with WindowListener {
         onDone: () async {
           await Future.delayed(const Duration(seconds: 1));
 
-          pipeline.executionStatus = pipeline.finished
-              ? ExecutionStatus.done
-              : ExecutionStatus.disconnected;
+          if (pipeline.finished) {
+            if (pipeline.executionStatus != ExecutionStatus.failure) {
+              pipeline.executionStatus = ExecutionStatus.success;
+            }
+          } else {
+            pipeline.executionStatus = ExecutionStatus.disconnected;
+          }
         });
   }
 
@@ -159,15 +168,24 @@ class _PipelinePageState extends State<PipelinePage> with WindowListener {
           actions: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
             executionStatusNotification(pipeline.executionStatus),
             IconButton(
-                icon: Icon(FluentIcons.add_space_before,
-                    color: pipeline.followExecution
-                        ? Colors.blue
-                        : theme.iconTheme.color),
+                icon: pipeline.followExecution
+                    ? Icon(FluentIcons.pinned_solid, color: Colors.blue)
+                    : Icon(FluentIcons.pinned, color: theme.iconTheme.color),
                 onPressed: () => pipeline.toggleFollowExecution()),
             IconButton(
                 icon: const Icon(FluentIcons.copy),
                 onPressed: () => FlutterClipboard.copy(pipeline
                     .filteredOuptut(pipeline[pipeline.selectedStep].output))),
+            if (pipeline.length > 0)
+              if (pipeline[pipeline.selectedStep].startVars.isNotEmpty)
+                IconButton(
+                    icon: const Icon(FluentIcons.align_horizontal_left),
+                    onPressed: () {}),
+            if (pipeline.length > 0)
+              if (pipeline[pipeline.selectedStep].endVars.isNotEmpty)
+                IconButton(
+                    icon: const Icon(FluentIcons.align_horizontal_right),
+                    onPressed: () {}),
             Padding(
                 padding: const EdgeInsetsDirectional.only(end: 10),
                 child: IconButton(
@@ -247,7 +265,9 @@ class _PipelinePageState extends State<PipelinePage> with WindowListener {
                     scrollController: pipeline.scrollC,
                     children: [
                       SelectableText(
-                          pipeline.filteredOuptut(pipeline[index].output),
+                          pipeline[index].output.isEmpty
+                              ? 'No output (yet).'
+                              : pipeline.filteredOuptut(pipeline[index].output),
                           style: const TextStyle(fontSize: 12))
                     ],
                   ))),
@@ -318,7 +338,7 @@ class _PipelinePageState extends State<PipelinePage> with WindowListener {
 
   Widget executionStatusNotification(ExecutionStatus status) {
     switch (status) {
-      case ExecutionStatus.done:
+      case ExecutionStatus.success:
         return Padding(
             padding: const EdgeInsets.only(left: 10, right: 10),
             child: Icon(FluentIcons.skype_check, color: Colors.teal));
@@ -331,6 +351,11 @@ class _PipelinePageState extends State<PipelinePage> with WindowListener {
                 style: TextStyle(color: Colors.warningPrimaryColor)));
       case ExecutionStatus.connecting:
         return const SizedBox(width: 100, child: Text('Connecting...'));
+      case ExecutionStatus.failure:
+        return const Padding(
+            padding: EdgeInsets.only(left: 10, right: 10),
+            child: Icon(FluentIcons.error_badge12,
+                color: Colors.warningPrimaryColor));
     }
   }
 }

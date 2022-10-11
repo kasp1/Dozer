@@ -129,6 +129,10 @@ class Pipeline with ChangeNotifier {
       }
     }
 
+    if (filteredLines.isEmpty) {
+      filteredLines.add('Nothing seems to match the filter.');
+    }
+
     return filteredLines.join('\n');
   }
 }
