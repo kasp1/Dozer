@@ -1,4 +1,6 @@
-import 'dart:html' show WebSocket, MessageEvent;
+import 'dart:convert';
+
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' hide Page;
 import 'package:flutter/foundation.dart';
@@ -9,7 +11,10 @@ import 'package:url_launcher/link.dart';
 import 'package:url_strategy/url_strategy.dart';
 import 'package:window_manager/window_manager.dart';
 
-import 'theme.dart';
+import 'enums.dart';
+import 'model/pipeline.dart';
+import 'model/step.dart';
+import 'model/theme.dart';
 
 const String appTitle = 'Dozer';
 
@@ -45,7 +50,7 @@ void main() async {
         TitleBarStyle.hidden,
         windowButtonVisibility: false,
       );
-      await windowManager.setSize(const Size(755, 545));
+      await windowManager.setSize(const Size(800, 600));
       await windowManager.setMinimumSize(const Size(350, 600));
       await windowManager.center();
       await windowManager.show();
@@ -62,8 +67,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => AppTheme(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AppTheme>(create: (_) => AppTheme()),
+        ChangeNotifierProvider<Pipeline>(create: (_) => Pipeline())
+      ],
       builder: (context, _) {
         final appTheme = context.watch<AppTheme>();
         return FluentApp(
@@ -118,162 +126,238 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> with WindowListener {
   bool value = false;
-  bool followExecution = true;
-  WebSocket connection = WebSocket('ws://localhost:8220/');
-
-  int index = 0;
+  WebSocketChannel connection = WebSocketChannel.connect(
+    Uri.parse('ws://localhost:8220/'),
+  );
 
   final viewKey = GlobalKey();
 
   final key = GlobalKey();
-  late List<NavigationPaneItem> items = [
-    PaneItem(
-      icon: const Icon(FluentIcons.circle_fill),
-      title: const Text('Home'),
-      body: ScaffoldPage.scrollable(
-        padding: const EdgeInsets.all(5),
-        children: [
-          RichText(
-            text: TextSpan(
-              text: 'Hello ',
-              style: DefaultTextStyle.of(context).style,
-              children: const <TextSpan>[
-                TextSpan(
-                    text: 'bold',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                TextSpan(text: ' world!'),
-              ],
-            ),
-          )
-        ],
-      ),
-    ),
-  ];
 
   @override
   void initState() {
     windowManager.addListener(this);
     super.initState();
 
-    connection.onMessage.listen((MessageEvent e) {
-      print(e.data);
-    });
+    connection.stream.listen(
+      (data) {
+        Map<String, dynamic> json = jsonDecode(data);
+
+        if (json.containsKey('recap')) {
+          List<dynamic> recap = json['recap'] as List<dynamic>;
+          List<Step> steps = [];
+
+          for (final recapStep in recap) {
+            StepStatus status = StepStatus.initial;
+
+            switch (recapStep['status']) {
+              case 'progress':
+                status = StepStatus.progress;
+                break;
+              case 'failure':
+                status = StepStatus.failure;
+                break;
+              case 'success':
+                status = StepStatus.success;
+                break;
+              default:
+                status = StepStatus.initial;
+            }
+
+            Step step = Step(
+                title: recapStep['title'],
+                status: status,
+                output: recapStep['output']);
+
+            // Output stepOutput = step.body as Output;
+            // stepOutput.state.content = recapStep['output'];
+
+            if (recapStep.containsKey('totalTime')) {
+              step.time = recapStep['totalTime'];
+            }
+
+            Map<String, dynamic> vars = {};
+
+            if (recapStep.containsKey('startVars')) {
+              vars = recapStep['startVars'] as Map<String, dynamic>;
+
+              vars.forEach((key, value) {
+                step.startVars[key] = value as String;
+              });
+            }
+
+            if (recapStep.containsKey('endVars')) {
+              vars = recapStep['endVars'] as Map<String, dynamic>;
+
+              vars.forEach((key, value) {
+                step.endVars[key] = value as String;
+              });
+            }
+
+            steps.add(step);
+          }
+
+          Provider.of<Pipeline>(context, listen: false).steps = steps;
+        }
+
+        if (json.containsKey('step') && json.containsKey('output')) {
+          var index = json['step'];
+          Provider.of<Pipeline>(context, listen: false)
+              .appendOutput(index, json['output']);
+        }
+      },
+      onError: (error) => print(error),
+      onDone: () => print('Disconnected'),
+    );
   }
 
   @override
   void dispose() {
     windowManager.removeListener(this);
+    connection.sink.close();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final appTheme = context.watch<AppTheme>();
+    final pipeline = context.watch<Pipeline>();
     final theme = FluentTheme.of(context);
-    return NavigationView(
-        key: viewKey,
-        appBar: NavigationAppBar(
-          automaticallyImplyLeading: false,
-          title: () {
-            if (kIsWeb) {
-              return const Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: Text(appTitle),
-              );
-            }
-            return const DragToMoveArea(
-              child: Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: Text(appTitle),
-              ),
-            );
-          }(),
-          actions: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-            ToggleButton(
-              child: const Text('Follow'),
-              checked: followExecution,
-              onChanged: (v) =>
-                  setState(() => followExecution = !followExecution),
-            ),
-            Padding(
-              padding: const EdgeInsetsDirectional.only(end: 8.0),
-              child: ToggleSwitch(
-                content: const Text('Dark'),
-                checked: FluentTheme.of(context).brightness.isDark,
-                onChanged: (v) {
-                  if (v) {
-                    appTheme.mode = ThemeMode.dark;
-                  } else {
-                    appTheme.mode = ThemeMode.light;
-                  }
-                },
-              ),
-            ),
-            const SizedBox(
-                width: 100.0,
-                child: TextBox(
-                  placeholder: 'Filter',
-                  expands: false,
-                  autocorrect: false,
-                  enableSuggestions: true,
-                )),
-            if (!kIsWeb) const WindowButtons(),
-          ]),
-        ),
-        pane: NavigationPane(
-          selected: () {
-            return index;
-          }(),
-          onChanged: (i) {
-            setState(() => index = i);
-          },
-          header: SizedBox(
-            height: kOneLineTileHeight,
-            child: ShaderMask(
-              shaderCallback: (rect) {
-                final color = appTheme.color.resolveFromReverseBrightness(
-                  theme.brightness,
-                  level: theme.brightness == Brightness.light ? 0 : 2,
+    return Consumer<Pipeline>(builder: (context, pipeline, child) {
+      return NavigationView(
+          key: viewKey,
+          transitionBuilder: ((child, animation) => FadeTransition(
+                opacity: animation,
+                child: child,
+              )),
+          appBar: NavigationAppBar(
+            automaticallyImplyLeading: false,
+            title: () {
+              if (kIsWeb) {
+                return const Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(appTitle),
                 );
-                return LinearGradient(
-                  colors: [
-                    color,
-                    color,
-                  ],
-                ).createShader(rect);
-              },
-              child: FluentTheme.of(context).brightness.isDark
-                  ? Image.asset('assets/logo-light100.png')
-                  : Image.asset('assets/logo-dark100.png'),
-            ),
+              }
+              return const DragToMoveArea(
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(appTitle),
+                ),
+              );
+            }(),
+            actions: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+              ToggleButton(
+                  child: const Text('Follow'),
+                  checked: pipeline.followExecution,
+                  onChanged: (v) => pipeline.toggleFollowExecution()),
+              Padding(
+                padding: const EdgeInsetsDirectional.only(end: 8.0),
+                child: ToggleSwitch(
+                  content: const Text('Dark'),
+                  checked: FluentTheme.of(context).brightness.isDark,
+                  onChanged: (v) {
+                    if (v) {
+                      appTheme.mode = ThemeMode.dark;
+                    } else {
+                      appTheme.mode = ThemeMode.light;
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(
+                  width: 100.0,
+                  child: TextBox(
+                    placeholder: 'Filter',
+                    expands: false,
+                    autocorrect: false,
+                    enableSuggestions: true,
+                  )),
+              if (!kIsWeb) const WindowButtons(),
+            ]),
           ),
-          displayMode: PaneDisplayMode.compact,
-          indicator: () {
-            switch (appTheme.indicator) {
-              case NavigationIndicators.end:
-                return const EndNavigationIndicator();
-              case NavigationIndicators.sticky:
-              default:
-                return const StickyNavigationIndicator();
-            }
-          }(),
-          items: items,
-          footerItems: [
-            PaneItemSeparator(),
-            _LinkPaneItemAction(
-              icon: const Icon(FluentIcons.documentation),
-              title: const Text('Documentation'),
-              link: 'https://github.com/kasp1/Dozer',
-              body: const SizedBox.shrink(),
+          pane: NavigationPane(
+            selected: () {
+              return pipeline.selectedStep;
+            }(),
+            onChanged: (i) {
+              setState(() => pipeline.selectedStep = i);
+            },
+            header: SizedBox(
+              height: kOneLineTileHeight,
+              child: ShaderMask(
+                shaderCallback: (rect) {
+                  final color = appTheme.color.resolveFromReverseBrightness(
+                    theme.brightness,
+                    level: theme.brightness == Brightness.light ? 0 : 2,
+                  );
+                  return LinearGradient(
+                    colors: [
+                      color,
+                      color,
+                    ],
+                  ).createShader(rect);
+                },
+                child: FluentTheme.of(context).brightness.isDark
+                    ? Image.asset('assets/logo-light100.png')
+                    : Image.asset('assets/logo-dark100.png'),
+              ),
             ),
-            _LinkPaneItemAction(
-              icon: const Icon(FluentIcons.chat),
-              title: const Text('Discord'),
-              link: 'https://discord.gg/JJDxmpVT6v',
-              body: const SizedBox.shrink(),
-            ),
-          ],
-        ));
+            displayMode: PaneDisplayMode.compact,
+            indicator: () {
+              switch (appTheme.indicator) {
+                case NavigationIndicators.end:
+                  return const EndNavigationIndicator();
+                case NavigationIndicators.sticky:
+                default:
+                  return const StickyNavigationIndicator();
+              }
+            }(),
+            items: List<NavigationPaneItem>.generate(
+                pipeline.length,
+                (index) => PaneItem(
+                    title: Text(pipeline[index].title),
+                    infoBadge: pipeline[index].time.isNotEmpty
+                        ? Text(pipeline[index].time,
+                            style: const TextStyle(fontSize: 8))
+                        : null,
+                    icon: chooseIcon(pipeline[index].status),
+                    body: ScaffoldPage.scrollable(
+                      scrollController: pipeline.scrollC,
+                      padding: const EdgeInsets.all(5),
+                      children: [
+                        RichText(
+                          text: TextSpan(
+                            text: pipeline[index].output,
+                            style: DefaultTextStyle.of(context).style,
+                            children: const <TextSpan>[
+                              TextSpan(
+                                  text: 'bold',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                              TextSpan(text: ' world!'),
+                            ],
+                          ),
+                        )
+                      ],
+                    ))),
+            footerItems: [
+              PaneItemSeparator(),
+              _LinkPaneItemAction(
+                icon: const Icon(FluentIcons.documentation),
+                title: const Text('Documentation'),
+                link: 'https://github.com/kasp1/Dozer',
+                body: const SizedBox.shrink(),
+              ),
+              _LinkPaneItemAction(
+                icon: const Icon(FluentIcons.chat),
+                title: const Text('Discord'),
+                link: 'https://discord.gg/JJDxmpVT6v',
+                body: const SizedBox.shrink(),
+              ),
+            ],
+          ));
+    });
   }
 
   @override
@@ -304,6 +388,22 @@ class _MyHomePageState extends State<MyHomePage> with WindowListener {
           );
         },
       );
+    }
+  }
+
+  chooseIcon(StepStatus status) {
+    switch (status) {
+      case StepStatus.initial:
+        return const Icon(FluentIcons.location_dot);
+      case StepStatus.progress:
+        return const RotatedBox(
+          quarterTurns: 2,
+          child: Icon(FluentIcons.skype_arrow),
+        );
+      case StepStatus.success:
+        return const Icon(FluentIcons.skype_check);
+      case StepStatus.failure:
+        return const Icon(FluentIcons.status_circle_error_x);
     }
   }
 }

@@ -11,7 +11,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  fluent_ui: ^4.0.0
+  fluent_ui:
   provider: ^6.0.3
   system_theme: ^2.0.0
   window_manager: ^0.2.7
@@ -22,6 +22,7 @@ dependencies:
   email_validator: ^2.0.1
   http: ^0.13.4
   flutter_markdown: ^0.6.10+5
+  web_socket_channel: 
   flutter_highlight:
     git:
       url: https://github.com/shreyas1599/highlight.dart.git
