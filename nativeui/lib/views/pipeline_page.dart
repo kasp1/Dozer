@@ -6,6 +6,7 @@ import 'package:fluent_ui/fluent_ui.dart' hide Page;
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:clipboard/clipboard.dart';
 
 import 'package:dozer/enums.dart';
 import 'package:dozer/model/step.dart';
@@ -163,6 +164,10 @@ class _PipelinePageState extends State<PipelinePage> with WindowListener {
                         ? Colors.blue
                         : theme.iconTheme.color),
                 onPressed: () => pipeline.toggleFollowExecution()),
+            IconButton(
+                icon: const Icon(FluentIcons.copy),
+                onPressed: () => FlutterClipboard.copy(pipeline
+                    .filteredOuptut(pipeline[pipeline.selectedStep].output))),
             Padding(
                 padding: const EdgeInsetsDirectional.only(end: 10),
                 child: IconButton(

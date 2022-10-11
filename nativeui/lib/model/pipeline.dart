@@ -121,8 +121,10 @@ class Pipeline with ChangeNotifier {
     List<String> lines = output.split('\n');
     List<String> filteredLines = [];
 
+    RegExp regexp = RegExp(RegExp.escape(_filter), caseSensitive: false);
+
     for (String line in lines) {
-      if (line.contains(_filter)) {
+      if (regexp.hasMatch(line)) {
         filteredLines.add(line);
       }
     }
