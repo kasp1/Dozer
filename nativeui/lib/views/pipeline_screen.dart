@@ -254,9 +254,11 @@ class _PipelineScreenState extends State<PipelineScreen> with WindowListener {
                   ],
                 ).createShader(rect);
               },
-              child: FluentTheme.of(context).brightness.isDark
-                  ? Image.asset('assets/logo-light100.png')
-                  : Image.asset('assets/logo-dark100.png'),
+              child: Row(children: [
+                FluentTheme.of(context).brightness.isDark
+                    ? Image.asset('assets/logo-light100.png')
+                    : Image.asset('assets/logo-dark100.png')
+              ]),
             ),
           ),
           displayMode: PaneDisplayMode.compact,
@@ -283,7 +285,7 @@ class _PipelineScreenState extends State<PipelineScreen> with WindowListener {
                     children: [
                       SelectableText(
                           pipeline[index].output.isEmpty
-                              ? 'No output (yet).'
+                              ? 'Waiting for output...'
                               : pipeline.filteredOuptut(pipeline[index].output),
                           style: const TextStyle(fontSize: 12))
                     ],
@@ -347,9 +349,10 @@ class _PipelineScreenState extends State<PipelineScreen> with WindowListener {
           child: Icon(FluentIcons.skype_arrow),
         );
       case StepStatus.success:
-        return const Icon(FluentIcons.skype_check);
+        return Icon(FluentIcons.skype_check, color: Colors.teal);
       case StepStatus.failure:
-        return const Icon(FluentIcons.status_circle_error_x);
+        return const Icon(FluentIcons.status_circle_error_x,
+            color: Colors.warningPrimaryColor);
     }
   }
 

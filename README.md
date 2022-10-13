@@ -11,7 +11,7 @@ Useful if:
 
 The GUI is optional. Dozer can also just run as a CLI command.
 
-![](resources/screenshots/3.png)
+![](resources/screenshots/4.png)
 
 ## Sponsored By
 

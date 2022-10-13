@@ -31,7 +31,7 @@ steps:
     copy "%DOZER_VS_DLLS%\vcruntime140.dll" dist\ &&
     copy "%DOZER_VS_DLLS%\vcruntime140_1.dll" dist\ &&
     copy "%DOZER_VS_DLLS%\msvcp140.dll" dist\ &&
-    xcopy nativeui\build\windows\runner\Release\data dist\data\ /E/H
+    xcopy nativeui\build\windows\runner\Release\data dist\data\ /E/H/Y
 
 - displayName: Package Windows Build
   command: node CI/archive-windows.js

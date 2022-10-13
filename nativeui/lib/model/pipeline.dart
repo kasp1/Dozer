@@ -3,7 +3,7 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'step.dart';
 
 class Pipeline with ChangeNotifier {
-  String _title = 'Dozerr';
+  String _title = 'Dozer';
   ExecutionStatus _executionStatus = ExecutionStatus.connecting;
   bool followExecution = true;
   int selectedStep = 0;
@@ -85,6 +85,8 @@ class Pipeline with ChangeNotifier {
     _steps[stepIndex].time = time;
 
     if (status == StepStatus.progress) {
+      _title = _steps[stepIndex].title;
+
       if (followExecution) {
         selectedStep = stepIndex;
       }
