@@ -1,3 +1,32 @@
+# [4.0.0](https://github.com/kasp1/Dozer/compare/v3.1.0...v4.0.0) (2022-10-13)
+
+
+### Bug Fixes
+
+* downloading of online steps and replacing variables in commands ([00c0873](https://github.com/kasp1/Dozer/commit/00c087303ec0af5a54e9d315492c0f4ae764500c))
+* fixed Runner builds where the binary missed dependencies ([ef25efd](https://github.com/kasp1/Dozer/commit/ef25efd0a7597956ca73240d9c5d54c57377f8b9))
+* main title now updates according to step in progress, Dozer logo aligned, fixed windows CI/CD ([3513054](https://github.com/kasp1/Dozer/commit/3513054000760f18816fbcc51dfd759a049675aa))
+
+
+### Features
+
+* added internal web UI server ([2c9a6c9](https://github.com/kasp1/Dozer/commit/2c9a6c957f951910d9fb26ba9a8b6c28adf226cf))
+* added switch between free mode and automatic execution following ([a7439cb](https://github.com/kasp1/Dozer/commit/a7439cbadc05774ddcba886e3e16327e78eef239))
+* copy button, case-insensitive filtering ([a3aaaa9](https://github.com/kasp1/Dozer/commit/a3aaaa9e96fc30a572e17f790badfe8c73202f58))
+* dev fail pipeline, overall pipeline fail UI state ([3ccfdd0](https://github.com/kasp1/Dozer/commit/3ccfdd003e9769a20d6de853448282b81c2222de))
+* native UI experimental layout ([83f9efe](https://github.com/kasp1/Dozer/commit/83f9efe30b389fb7ee6b9c6f7a90972989b83cc7))
+* output filtering, copy-able output, toggle icon buttons, title bar ([69b69b6](https://github.com/kasp1/Dozer/commit/69b69b68bdfe7393a91636351801d4f4fd0aef38))
+* the runner and UI are now separate applications communicating over websockets ([034bd0c](https://github.com/kasp1/Dozer/commit/034bd0c3a4978ab74eef1fce62cc642ecc403595))
+* tooltips, app icons, env variables dialog ([ec05022](https://github.com/kasp1/Dozer/commit/ec0502231bd3cce39694ae79bf7af3ac38631114))
+
+
+### BREAKING CHANGES
+
+* The `title` parameter of pipeline steps replaces `displayName`, but `displayName`
+will be still accepted if `title` is not present. The `--gui` is replaced by `--webui` and will
+start the Web UI in a browser tab if specified (instead of an Electron app as before). The `--gui`
+parameter is now reserved for Native UI clients.
+
 # [1.4.0](https://github.com/kasp1/Dozer/compare/v1.3.0...v1.4.0) (2021-07-10)
 
 

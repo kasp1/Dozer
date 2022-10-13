@@ -1,6 +1,6 @@
 {
   "name": "dozer",
-  "version": "1.0.0",
+  "version": "4.0.0",
   "author": "Mirek Kaspar <k@e0.cz>",
   "description": "Simple CI/CD Runner",
   "license": "MIT",
@@ -15,16 +15,22 @@
       "path": "./node_modules/cz-conventional-changelog"
     }
   },
+  "dependencies": {
+    "archiver": "^5.3.1"
+  },
+  "type": "module",
   "release": {
     "plugins": [
       "@semantic-release/commit-analyzer",
       "@semantic-release/release-notes-generator",
       "@semantic-release/changelog",
-      "@semantic-release/npm"
+      [
+        "./CI/shared/tools/semantic-release-env-version.cjs",
+        {
+          "varName": "CI_VERSION",
+          "setOnlyOnRelease": false
+        }
+      ]
     ]
-  },
-  "dependencies": {
-    "archiver": "^5.3.1"
-  },
-  "type": "module"
+  }
 }

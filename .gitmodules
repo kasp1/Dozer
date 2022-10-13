@@ -1,0 +1,3 @@
+[submodule "CI/shared"]
+	path = CI/shared
+	url = https://github.com/kasp1/dozer-pipelines.git

@@ -1,12 +1,15 @@
 import fs from 'fs'
 import archiver from 'archiver'
 
-const output = fs.createWriteStream('dist/Windows64.zip')
+let version = process.env['CI_VERSION'] || '1.0.0'
+let fileName = `dist/Dozer_${version}_Windows_x64.zip`;
+
+const output = fs.createWriteStream(fileName)
 const archive = archiver('zip', { zlib: { level: 9 } })
 
 output.on('close', function() {
   console.log(archive.pointer() + ' total bytes')
-  console.log('Finished.')
+  console.log('Finished', fileName)
 })
 
 archive.on('warning', (err) => console.log(err))
@@ -24,7 +27,6 @@ for (let file in files) {
 }
 
 for (let name of fs.readdirSync('dist')) {
-  console.log(name)
   if (name.includes('.dll')) {
     archive.file('dist/' + name, { name: name })
   }

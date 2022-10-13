@@ -1,10 +1,13 @@
 steps:
 
+- displayName: Clear Previous Builds
+  command: rmdir .\dist /s /q
+
 - displayName: Install Dependencies
   command: npm i
 
-# - displayName: Semantic Release
-#   command: npx semantic-release --no-ci --debug
+- displayName: Semantic Release
+  command: npx semantic-release --no-ci --debug
 
 - displayName: Install Runner Dependencies
   command: cd "runner" && npm i
@@ -34,4 +37,4 @@ steps:
     xcopy nativeui\build\windows\runner\Release\data dist\data\ /E/H/Y
 
 - displayName: Package Windows Build
-  command: node CI/archive-windows.js
+  command: "\"C:\\Program Files\\nodejs\\node.exe\" CI/archive-windows.js"
