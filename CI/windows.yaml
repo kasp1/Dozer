@@ -3,9 +3,6 @@ steps:
 - displayName: Install Dependencies
   command: npm i
 
-#
-# Build
-#
 # - displayName: Semantic Release
 #   command: npx semantic-release --no-ci --debug
 
@@ -13,7 +10,8 @@ steps:
   command: cd "runner" && npm i
 
 - displayName: Build Runner
-  command: cd "runner" && pkg main.js -o ../dist/dozer-win -t latest-win
+  command: ncc build runner/main.js -o dist &&
+    pkg dist/index.js -o dist/dozer-win -t latest-win
 
 - displayName: Install WebUI Dependencies
   command: cd "webui" && npm i
@@ -27,9 +25,13 @@ steps:
 - displayName: Build NativeUI
   command: cd "nativeui" && flutter build windows
 
-- displayName: Copy Windows Build
+- displayName: Assemble Windows Build
   command: copy nativeui\build\windows\runner\Release\dozerui.exe dist\dozerui-win.exe && 
-    copy nativeui\build\windows\runner\Release\*.dll dist\
+    copy nativeui\build\windows\runner\Release\*.dll dist\ &&
+    copy "%DOZER_VS_DLLS%\vcruntime140.dll" dist\ &&
+    copy "%DOZER_VS_DLLS%\vcruntime140_1.dll" dist\ &&
+    copy "%DOZER_VS_DLLS%\msvcp140.dll" dist\ &&
+    xcopy nativeui\build\windows\runner\Release\data dist\data\ /E/H
 
 - displayName: Package Windows Build
   command: node CI/archive-windows.js

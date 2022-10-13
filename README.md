@@ -9,9 +9,15 @@ Useful if:
 - Your environment is already set up and you want to save time installing all tools on each CI/CD run.
 - You want to develop and test your CI/CD steps on your localhost before uploading the scripts to a cloud CI/CD.
 
-The GUI is optional. Dozer can be also run on servers.
+The GUI is optional. Dozer can also just run as a CLI command.
 
 ![](resources/screenshots/3.png)
+
+## Sponsored By
+
+[![](resources/sponsors/rtd.jpg)](https://store.steampowered.com/app/1496770/RTD__Road_to_Desolace/)
+
+[![](resources/sponsors/nextkind.png)](https://nextkind.org)
 
 # Quick Start
 
@@ -19,7 +25,7 @@ The GUI is optional. Dozer can be also run on servers.
 
 0. If you have Dozer 3 or earlier installed, uninstall it first (find Dozer in the *Apps & Features* settings dialog, click it and select Uninstall).
 1. Download a release archive for your platform from the [Releases page](https://github.com/kasp1/Dozer/releases) and unzip it to a safe folder.
-2. Add that folder to your PATH.
+2. Add that folder to your PATH. Then make sure to open a fresh terminal before using Dozer.
     - [How to add to PATH on Windows](https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-2010/ee537574(v=office.14)) 
     - [How to add to PATH on Linux](https://linuxize.com/post/how-to-add-directory-to-path-in-linux/)
     - [How to add to PATH on MacOS](https://www.architectryan.com/2012/10/02/add-to-the-path-on-mac-os-x-mountain-lion/)
@@ -209,13 +215,19 @@ Before using the `--webui` argument, you need to make sure the *Web UI* is built
 
 Before using `--gui`, you need to make sure the `dozerui` command exists on your system. If the command is not present in your system `PATH` environment variable, you can specify a direct path to the *Native UI* binary as `--gui path/to/binary`. The same way you can also guide the *Dozer Runner* to start any other command present on your system, e.g. `--gui customui`.
 
+### Build
+
+Install `pkg` and `ncc`, the commands which compile the *Runner* into binaries... `npm i -g pkg @vercel/ncc`.
+
+In the project root folder, execute `ncc build runner/main.js -o dist && pkg dist/index.js -o dist/dozer-win -t latest-win`. The built binary should appear as `../dist/dozer-win.exe`.
+
 ## Dozer WebUI
 
 ### Setup
 
 0. Make sure you have [Node.js](https://nodejs.org) and [Vue CLI](https://cli.vuejs.org/) installed.
 1. Clone the repository.
-2. In a terminal, change to the `webui` directory.
+2. In a terminal, change to the `webui` directory. 
 3. Run `npm i` to install dependencies.
 
 ### Develop
@@ -225,6 +237,34 @@ The source code of the *WebUI* is in the `webui` folder. Each time you want to t
 ### Build
 
 In the `webui` folder, execute `node run serve`. The built files should appear under `../dist/webui`.
+
+## Dozer NativeUI
+
+### Setup
+
+0. Make sure you have [Visual Studio Community](https://visualstudio.microsoft.com/vs/community/) and [Flutter SDK](https://docs.flutter.dev/get-started/install) installed.
+1. Clone the repository.
+2. In a terminal, change to the `nativeui` directory.
+3. Run `flutter pub get` to install dependencies.
+
+### Develop
+
+The source code of the *NativeUI* is in the `nativeui` folder. Each time you want to test, execute `flutter run windows`, which will start the UI app in a hot-reload mode.
+
+### Build
+
+In the `nativeui` folder, execute `flutter build windows`. The built files should appear under `nativeui/build/windows/runner/Release`.
+
+## Packaging for Distribution
+
+Before packaging for distribution, the development and build requirements for each *Runner*, *WebUI*, and *NativeUI* have to be met first.
+
+### Windows
+
+The `DOZER_VC_DLLS` environment variable needs to be set to the path where `msvcp140.dll`, `vcruntime140.dll`, `vcruntime140_1.dll` are located, e.g. `C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Redist\MSVC\14.32.31326\x64\Microsoft.VC143.CRT`.
+
+Run `build-dist-win.bat`. When finished, the Dozer distributable should be present as `dist/Windows64.zip`.
+
 
 ## Websockets API
 

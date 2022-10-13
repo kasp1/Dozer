@@ -31,5 +31,6 @@ for (let name of fs.readdirSync('dist')) {
 }
 
 archive.directory('dist/webui/', 'webui')
+archive.directory('dist/data/', 'data')
 
 archive.finalize()
