@@ -1,7 +1,7 @@
 steps:
 
 - displayName: Clear Previous Builds
-  command: rmdir .\dist /s /q
+  command: if exist dist rmdir dist /s /q
 
 - displayName: Install Dependencies
   command: npm i
