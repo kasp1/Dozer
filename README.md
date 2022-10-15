@@ -3,7 +3,7 @@
 > Dozer, a simple continuous integration / deployment / delivery / task runner (CI/CD).
 
 Useful if:
-- You don't have your own server existing cloud CI/CD options seem like overkill.
+- You don't have your own server and/or existing cloud CI/CD options seem like overkill.
 - Existing cloud CI/CD options are not suitable for some reason (e.g. too hardware demanding runs).
 - You want to use command line tools that are hard to install on cloud runners.
 - Your environment is already set up and you want to save time installing all tools on each CI/CD run.
@@ -20,6 +20,8 @@ The GUI is optional. Dozer can also just run as a CLI command.
 [![](resources/sponsors/nextkind.png)](https://nextkind.org)
 
 # Quick Start
+
+[Instructions for Dozer v3](https://github.com/kasp1/Dozer/tree/afe1b6220bae3603dfc1e4ff99cdc45f6a5d32ec) and earlier.
 
 ## Install
 
@@ -263,7 +265,15 @@ Before packaging for distribution, the development and build requirements for ea
 
 The `DOZER_VC_DLLS` environment variable needs to be set to the path where `msvcp140.dll`, `vcruntime140.dll`, `vcruntime140_1.dll` are located, e.g. `C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Redist\MSVC\14.32.31326\x64\Microsoft.VC143.CRT`.
 
-Run `build-dist-win.bat`. When finished, the Dozer distributable should be present as `dist/Windows64.zip`.
+Run `build-dist-win.bat`. When finished, the Dozer distributable should be present as `dist/Dozer_<version>_Windows_x64.zip`.
+
+### Linux
+
+Run `build-dist-linux.bat`. When finished, the Dozer distributable should be present as `dist/Dozer_<version>_Linux_x64.zip`.
+
+### MacOS
+
+Run `build-dist-mac.bat`. When finished, the Dozer distributable should be present as `dist/Dozer_<version>_MacOS.zip`.
 
 
 ## Websockets API

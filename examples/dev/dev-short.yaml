@@ -1,4 +1,6 @@
 steps:
+- title: Print Node Path
+  command: where node
 - title: 10 Second Step
   command: node examples/dev/delayed.js 10
 - title: Instant Step

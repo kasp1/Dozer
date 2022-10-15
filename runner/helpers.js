@@ -4,6 +4,7 @@ const Axios = require('axios')
 const fs = require('fs')
 const open = require('open')
 const express = require('express')
+const execSync = require('child_process').execSync
 
 let helpers = {
   log (...args) {
@@ -132,7 +133,7 @@ let helpers = {
 
       helpers.log('Serving WebUI from', process.env['DOZER_DEV_WEBUI_DIR'])
     } else {
-      server.use(express.static(path.join(__dirname, 'webui')))
+      server.use(express.static('webui'))
     }
     
     server.listen(port)
@@ -140,6 +141,38 @@ let helpers = {
     helpers.log('Serving WebUI on', port)
 
     open(`http://localhost:${port}/#localhost:${helpers.getApiPort()}`)
+  },
+
+  node: '',
+  findNodeExecutable() {
+    let systemNodeJS = 'node'
+
+    switch (process.platform) {
+      case 'linux': systemNodeJS = execSync('whereis node', { econding: 'utf8' }).toString().trim(); break
+      case 'win32': systemNodeJS = execSync('where node', { econding: 'utf8' }).toString().trim(); break
+      case 'darwin': systemNodeJS = execSync('which node', { econding: 'utf8' }).toString().trim(); break
+    }
+
+    if (!fs.existsSync(systemNodeJS)) {
+      systemNodeJS = 'node'
+    } else {
+      systemNodeJS = `"${systemNodeJS}"`
+    }
+
+    helpers.node = systemNodeJS
+  },
+
+  replaceNodeInCommand(command) {
+    if (helpers.node == '') {
+      helpers.findNodeExecutable()
+    }
+
+    // replaces "node" at the beginning of the command
+    command = command.replace(/^node/gm, helpers.node)
+    // replaces "node" after each & or &&
+    command = command.replace(/(?<=&\W*)node/gm, helpers.node)
+
+    return command
   }
 }
 

@@ -1,3 +1,10 @@
+## [4.0.1](https://github.com/kasp1/Dozer/compare/v4.0.0...v4.0.1) (2022-10-13)
+
+
+### Bug Fixes
+
+* windows taskbar title of Dozer window ([236d403](https://github.com/kasp1/Dozer/commit/236d4038bcad67852f9660bbbd856d46265b197f))
+
 # [4.0.0](https://github.com/kasp1/Dozer/compare/v3.1.0...v4.0.0) (2022-10-13)
 
 

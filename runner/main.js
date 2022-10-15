@@ -5,6 +5,7 @@ const open = require('open')
 
 const h = require('./helpers.js')
 const api = require('./api.js')
+const helpers = require('./helpers.js')
 
 let runner = {
   yaml: null,
@@ -142,6 +143,15 @@ let runner = {
     for (let v in runner.addedVars) {
       command = command.replace(new RegExp('\\${' + v + '}', 'gm'), runner.addedVars[v])
     }
+
+    // if the command contains a "node" (NodeJS) call to a script, by default the script would be
+    // executed by the NodeJS version embedded with Dozer, which doesn't support ES6 "import",
+    // it does support only CommonJS "require". This can be worked-around by specifying direct
+    // path to the system's NodeJS binary in the command, which is done automatically by
+    // the following line. https://github.com/vercel/pkg/issues/1291
+    //
+    // Note: this has only effect in shipped builds where NodeJS is embedded by `pkg`
+    command = helpers.replaceNodeInCommand(command)
 
     // run the exec
     h.log('Executing step', h.getTitle(step) + ':', command)
