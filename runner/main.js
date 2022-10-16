@@ -116,7 +116,9 @@ let runner = {
     }
 
     let options = {
-      env: { ...process.env, ...runner.addedVars }
+      env: { ...process.env, ...runner.addedVars },
+      encoding: 'utf8',
+      maxBuffer: 1000000 * 100 // 100MB
     }
 
     // change working directory if set
