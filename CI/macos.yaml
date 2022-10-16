@@ -1,5 +1,8 @@
 steps:
 
+- displayName: Clear Previous Builds
+  command: rm -rf dist
+
 - displayName: Install Dependencies
   command: npm i
 

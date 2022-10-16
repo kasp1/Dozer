@@ -1,3 +1,12 @@
+## [4.0.2](https://github.com/kasp1/Dozer/compare/v4.0.1...v4.0.2) (2022-10-16)
+
+
+### Bug Fixes
+
+* if NodeJS is installed in the system, NodeJS steps are by default executed with it ([5ce9443](https://github.com/kasp1/Dozer/commit/5ce94439bdb375776f9149660d8bad2890ae5c85))
+* increased the output buffer for pipeline steps, allows running steps with a lot of output ([e1df129](https://github.com/kasp1/Dozer/commit/e1df12923fc8b7117d39b1be34f138ba384dcf07))
+* the WebUI didn't get served on some circumstances ([ad5eaa1](https://github.com/kasp1/Dozer/commit/ad5eaa114cb618e25686538a8e7c742534aa1cae))
+
 ## [4.0.1](https://github.com/kasp1/Dozer/compare/v4.0.0...v4.0.1) (2022-10-13)
 
 
