@@ -125,41 +125,35 @@ let helpers = {
 
   async serveWebUi () {
     let port = helpers.getWebuiPort()
-
+    let webUiRoot = path.join(__dirname, 'webui')
     let server = express()
 
     if (process.env['DOZER_DEV_WEBUI_DIR']) {
-      server.use(express.static(process.env['DOZER_DEV_WEBUI_DIR']))
-
-      helpers.log('Serving WebUI from', process.env['DOZER_DEV_WEBUI_DIR'])
+      webUiRoot = process.env['DOZER_DEV_WEBUI_DIR']
     } else {
-      server.use(express.static('webui'))
-    }
-    
-    server.listen(port)
+      let dozerRoot = helpers.findBinaryPath('dozer', null)
 
-    helpers.log('Serving WebUI on', port)
+      console.log('dozerRoot', dozerRoot)
+
+      if (dozerRoot) {
+        webUiRoot = path.join(path.dirname(dozerRoot), 'webui')
+      }
+    }
+
+    server.use(express.static(webUiRoot))
+    server.listen(port)
+    helpers.log('Serving WebUI on', port, 'from', webUiRoot)
 
     open(`http://localhost:${port}/#localhost:${helpers.getApiPort()}`)
   },
 
   node: '',
   findNodeExecutable() {
-    let systemNodeJS = 'node'
+    helpers.node = helpers.findBinaryPath('node', 'node')
 
-    switch (process.platform) {
-      case 'linux': systemNodeJS = execSync('whereis node', { econding: 'utf8' }).toString().trim(); break
-      case 'win32': systemNodeJS = execSync('where node', { econding: 'utf8' }).toString().trim(); break
-      case 'darwin': systemNodeJS = execSync('which node', { econding: 'utf8' }).toString().trim(); break
+    if (helpers.node != 'node') {
+      helpers.node = `"${helpers.node}"`
     }
-
-    if (!fs.existsSync(systemNodeJS)) {
-      systemNodeJS = 'node'
-    } else {
-      systemNodeJS = `"${systemNodeJS}"`
-    }
-
-    helpers.node = systemNodeJS
   },
 
   replaceNodeInCommand(command) {
@@ -173,6 +167,24 @@ let helpers = {
     command = command.replace(/(?<=&\W*)node/gm, helpers.node)
 
     return command
+  },
+
+  findBinaryPath(command, failSafePath) {
+    let found = ''
+
+    switch (process.platform) {
+      case 'linux': found = execSync('whereis ' + command, { econding: 'utf8' }).toString().trim(); break
+      case 'win32': found = execSync('where ' + command, { econding: 'utf8' }).toString().trim(); break
+      case 'darwin': found = execSync('which ' + command, { econding: 'utf8' }).toString().trim(); break
+    }
+
+    console.log('found', found)
+
+    if (fs.existsSync(found)) {
+      return found
+    }
+
+    return failSafePath
   }
 }
 
