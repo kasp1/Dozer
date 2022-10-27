@@ -1,3 +1,11 @@
+# [4.1.0](https://github.com/kasp1/Dozer/compare/v4.0.2...v4.1.0) (2022-10-27)
+
+
+### Features
+
+* the argument --no-browser will prevent the browser tab from being opened if --webui is present ([740c34e](https://github.com/kasp1/Dozer/commit/740c34ed9969b1b6db2d133405bd0ccad4ff9a76))
+* values of variables with sensitive information are now automatically hidden in user interface ([4907b04](https://github.com/kasp1/Dozer/commit/4907b04679e842290ef07499b45a0db40c241799))
+
 ## [4.0.2](https://github.com/kasp1/Dozer/compare/v4.0.1...v4.0.2) (2022-10-16)
 
 

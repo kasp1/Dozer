@@ -1,0 +1,1 @@
+dozer CI\all-fromWindows.yaml --gui

@@ -1,0 +1,54 @@
+steps:
+
+- displayName: Clear Previous Builds
+  command: if exist dist rmdir dist /s /q
+
+- displayName: Install Dependencies
+  command: npm i
+
+- displayName: Semantic Release
+  command: npx semantic-release --no-ci --debug
+
+- displayName: Install Runner Dependencies
+  command: cd "runner" && npm i
+
+- displayName: Compile Runner into Single Script
+  command: ncc build runner/main.js -o dist
+
+- displayName: Build Runner Windows
+  command: pkg dist/index.js -o dist/dozer-win -t latest-win
+
+- displayName: Build Runner Linux
+  command: pkg dist/index.js -o dist/dozer-linux -t latest-linux
+
+- displayName: Build Runner MacOS
+  command: pkg dist/index.js -o dist/dozer-macos -t latest-macos
+
+- displayName: Install WebUI Dependencies
+  command: cd "webui" && npm i
+
+- displayName: Build WebUI
+  command: cd "webui" && npm run build
+
+- displayName: Install NativeUI Dependencies
+  command: cd "nativeui" && flutter pub get
+
+- displayName: Build NativeUI Windows
+  command: cd "nativeui" && flutter build windows
+
+- displayName: Assemble Windows Build
+  command: copy nativeui\build\windows\runner\Release\dozerui.exe dist\dozerui-win.exe && 
+    copy nativeui\build\windows\runner\Release\*.dll dist\ &&
+    copy "%DOZER_VS_DLLS%\vcruntime140.dll" dist\ &&
+    copy "%DOZER_VS_DLLS%\vcruntime140_1.dll" dist\ &&
+    copy "%DOZER_VS_DLLS%\msvcp140.dll" dist\ &&
+    xcopy nativeui\build\windows\runner\Release\data dist\data\ /E/H/Y
+
+- displayName: Package Windows Build
+  command: node CI/archive-windows.js
+
+- displayName: Package Linux Build
+  command: node CI/archive-linux.js
+
+- displayName: Package MacOS Build
+  command: node CI/archive-macos.js
