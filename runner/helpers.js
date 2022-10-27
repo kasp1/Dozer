@@ -144,7 +144,9 @@ let helpers = {
     server.listen(port)
     helpers.log('Serving WebUI on', port, 'from', webUiRoot)
 
-    open(`http://localhost:${port}/#localhost:${helpers.getApiPort()}`)
+    if (!process.argv.includes('--no-browser')) {
+      open(`http://localhost:${port}/#localhost:${helpers.getApiPort()}`)
+    }
   },
 
   node: '',
@@ -193,7 +195,6 @@ let helpers = {
         vars[key] = vars[key].replace(/./gm, '*')
       }
     }
-    console.log(vars)
 
     return vars
   },

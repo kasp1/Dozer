@@ -69,6 +69,7 @@ dozer ci.yaml # [--gui|--webui|--no-api]
 - `--webui` starts an internal web server and opens the web user interface in a browser tab.
 - `--webui-port` defines the port for the internal web user interface server to start on, `8221` by default.
 - `--webui <url>` will open an external web user interface by the specified URL in a browser tab, won't start an internal web server.
+- `--no-browser` will prevent `--webui` from opening the browser tab automatically, while `--webui` will still start the web server (so if the *WebUI* address is input in a browser tab manually, it will work).
 - `--no-api` disables the Websockets API, no UI will be able to connect and display the progress and outputs.
 - `--api-port <number>` changes the port that the user interfaces should connect to, `8220` by default.
 - `--root <dir>` changes the starting working directory. Overrides the YAML `runtimeDirectory` option. Both `\` and `/` can be specified as path separators.
