@@ -171,20 +171,25 @@ let runner = {
   },
 
   onStepOutput (step, data) {
-    let matches = data.toString().match(/##[a-zA-Z0-9_]+=.+#/gm)
-
     // does this contain a variable definition?
+    let matches = data.toString().match(/##[a-zA-Z0-9_]+=.+#/gm)
     if (matches) {
-      console.log('Found variable definition', matches)
-
       let str
       for (let match of matches) {
         str = match.replace(/^##/, '').replace(/#$/, '')
-        str = str.split('=')
+        let key = str.split('=')[0]
+        let value = str.split('=')[1].trim()
 
-        h.log('Setting env var', str[0], 'to', str[1].trim())
-        runner.addedVars[str[0]] = str[1].trim()
+        h.log('Setting env var', key, `to '${value}'`)
+        runner.addedVars[key] = value
+
+        if (!h.containsSensitiveWord(key, api.sensitiveWords)) {
+          api.sendOutput(step, `Setting env var ${key} to '${value}'`)
+        } else {
+          api.sendOutput(step, `Setting env var ${key}`)
+        }
       }
+    // if not, display and send out a normal output
     } else {
       console.log(data.toString().trim())
     

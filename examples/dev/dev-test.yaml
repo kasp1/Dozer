@@ -10,6 +10,8 @@ steps:
   code: https://raw.githubusercontent.com/kasp1/Dozer/v4/examples/dev/delayed.js
 - title: New Variable
   command: echo "##CI_TEST=Hello#"
+- title: New Secret Variable
+  command: echo "##CI_TEST_SECRET=Hello#"
 - title: 5 Second Step
   command: node examples/dev/delayed.js 5
 - title: Step With an Unnecessarily Long Title That We Still Need to Count With

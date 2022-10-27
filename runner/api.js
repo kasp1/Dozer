@@ -5,6 +5,7 @@ let api = {
   runner: null,
   firstUiConnectionTimeout: null,
   clients: [],
+  sensitiveWords: ['secret', 'password', 'pwd', 'passwd', 'token'],
 
   // this variable holds all steps and their statuses and outputs for the purpose
   // of any UI client that connects at a later stage of execution
@@ -66,6 +67,7 @@ let api = {
 
   sendStatus (step, status, totalTime) {
     let vars = { ...api.runner.addedVars, ...h.collectEnvVars() }
+    vars = h.hideValuesOfSensitiveVars(vars, api.sensitiveWords)
 
     api.recap[step].status = status
 

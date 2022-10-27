@@ -1,6 +1,6 @@
 const path = require('path')
 const os = require('os')
-const Axios = require('axios')
+const Axios = require('axios').default
 const fs = require('fs')
 const open = require('open')
 const express = require('express')
@@ -185,6 +185,24 @@ let helpers = {
     }
 
     return failSafePath
+  },
+
+  hideValuesOfSensitiveVars(vars, sensitive) {
+    for (let key in vars) {
+      if (helpers.containsSensitiveWord(key, sensitive)) {
+        vars[key] = vars[key].replace(/./gm, '*')
+      }
+    }
+    console.log(vars)
+
+    return vars
+  },
+
+  containsSensitiveWord(string, sensitive) {
+    return sensitive.some((word) => {
+      const regex = new RegExp(word, 'gim')
+      return regex.test(string)
+    })
   }
 }
 

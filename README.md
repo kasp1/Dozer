@@ -105,6 +105,8 @@ print('##NEXT_VERSION=1.0.1#');
 
 Please note that `##` cannot be prepended with another output on the same line.
 
+> Note: the values of variables containing any of the following words will be automatically hidden in the *NativeUI* and *WebUI* interfaces: `secret`, `password`, `pwd`, `passwd`, `token`, case-insensitive. For example, `CI_SECRET_LOGIN` would be considered sensitive information and hidden.
+
 ## Read environment variables in Dozer steps
 
 All environment variables, including the ones you set in the previous steps, are obtained the standard way for your language of choice.
