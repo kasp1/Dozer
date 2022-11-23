@@ -15,7 +15,7 @@ The GUI is optional. Dozer can also just run as a CLI command.
 
 ## Sponsored By
 
-[![](resources/sponsors/rtd.jpg)](https://store.steampowered.com/app/1496770/RTD__Road_to_Desolace/)
+[![](resources/sponsors/hosting-lads.png)](https://discord.gg/q3ah7nkMHF)
 
 [![](resources/sponsors/nextkind.png)](https://nextkind.org)
 
