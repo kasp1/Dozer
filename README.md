@@ -197,7 +197,7 @@ steps:
 
 # Trouble?
 
-Discord: [https://discord.gg/JJDxmpVT6v](https://discord.gg/JJDxmpVT6v)
+Discord: [https://discord.gg/TwnpfKVzGH](https://discord.gg/TwnpfKVzGH)
 
 # Contribute
 
