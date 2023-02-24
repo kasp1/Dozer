@@ -34,7 +34,7 @@ The GUI is optional. Dozer can also just run as a CLI command.
 
 ## Create CI/CD workflow
 
-And save it as a YAML file in your project's directory, for example, **ci.yaml**:
+Save a YAML file in your project's directory, for example, **ci.yaml**:
 
 ```yaml
 runtimeDirectory: C:/somewhere # optional, default: current working directory
@@ -133,10 +133,6 @@ Dart
 import 'dart:io';
 Platform.environment['NEXT_VERSION']
 ```
-
-# Install Dozer
-
-[Get the latest release](https://github.com/kasp1/Dozer/releases/) and run it as an Administrator.
 
 # Cookbook
 
