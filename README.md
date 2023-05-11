@@ -73,7 +73,7 @@ dozer ci.yaml # [--gui|--webui|--no-api]
 - `--no-api` disables the Websockets API, no UI will be able to connect and display the progress and outputs.
 - `--api-port <number>` changes the port that the user interfaces should connect to, `8220` by default.
 - `--root <dir>` changes the starting working directory. Overrides the YAML `runtimeDirectory` option. Both `\` and `/` can be specified as path separators.
-- `--key=<value>` specifies any environment variable called `key` for the pipeline steps with the value of `<value>`. Examples: `--foo=bar`, `--CI_MY_VAR=Hi`, `"--CI_MY_VAR=Hi there!"`.
+- `--key=<value>` specifies any environment variable called `key` for the pipeline steps with the value of `<value>`. Examples: `--foo=bar`, `--CI_MY_VAR=Hi`, `"--CI_MY_VAR=Hi there!"` (Dozer 4.2.0+).
 
 > Warning: it is a bad practice and a security risk to have your pipeline steps output sensitive data. If you don't specify the `--no-api` argument while running Dozer, and if the machine's IP is public, anyone in the world can connect to the Dozer runner and see the output logs. For ease of use, Dozer will open the UI API by default.
 

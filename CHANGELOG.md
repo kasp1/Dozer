@@ -1,3 +1,10 @@
+# [4.2.0](https://github.com/kasp1/Dozer/compare/v4.1.0...v4.2.0) (2023-05-11)
+
+
+### Features
+
+* `--key=<value>` specifies any environment variable for the pipeline steps ([15bf07d](https://github.com/kasp1/Dozer/commit/15bf07dec4450506bd573d1d21fc60b90aa82d29))
+
 # [4.1.0](https://github.com/kasp1/Dozer/compare/v4.0.2...v4.1.0) (2022-10-27)
 
 
