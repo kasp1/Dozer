@@ -101,6 +101,23 @@ let runner = {
       }
     }
 
+    // register any argument variables, i.e.: --key=value
+    for (let arg of process.argv) {
+      let matches = arg.match(/--[a-zA-Z0-9_]+=.+/gm)
+
+      if (matches) {
+        let str
+        for (let match of matches) {
+          str = match.replace(/^--/, '')
+          let key = str.split('=')[0]
+          let value = str.split('=')[1].trim()
+  
+          h.log('Setting env var', key, ` from arguments to '${value}'`)
+          runner.addedVars[key] = value
+        }
+      }
+    }
+
     h.log('Running CI steps...')
 
     runner.exec(0, runner.yaml.steps[0])

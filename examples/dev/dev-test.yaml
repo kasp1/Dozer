@@ -1,4 +1,6 @@
 steps:
+- title: Use Argument Variable CI_ARGUMENT
+  command: echo ${CI_ARGUMENT}
 - title: 10 Second Step
   command: node examples/dev/delayed.js 10
 - title: Instant Step
@@ -17,4 +19,4 @@ steps:
 - title: Step With an Unnecessarily Long Title That We Still Need to Count With
   command: echo Step With an Unnecessarily Long Title That We Still Need to Count With
 - title: Use Variable
-  command: echo %CI_TEST%
+  command: echo ${CI_TEST}
