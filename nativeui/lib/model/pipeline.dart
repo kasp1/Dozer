@@ -1,45 +1,129 @@
 import 'package:dozer/enums.dart';
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:get/get.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:dozer/debounce.dart';
+import 'dart:convert';
+import 'outputs.dart';
 import 'step.dart';
 
-class Pipeline with ChangeNotifier {
-  String _title = 'Dozer';
-  ExecutionStatus _executionStatus = ExecutionStatus.connecting;
-  bool followExecution = true;
-  int selectedStep = 0;
-  List<Step> _steps = [];
+class Pipeline extends GetxController {
+  RxString title = 'Dozer'.obs;
+  Rx<ExecutionStatus> executionStatus = ExecutionStatus.connecting.obs;
+  RxBool followExecution = true.obs;
+  RxInt selectedStep = 0.obs;
+  RxList<Step> steps = <Step>[].obs;
+  final stepOutputs = Get.put(Outputs());
+
   ScrollController scrollC =
       ScrollController(initialScrollOffset: 0.0, keepScrollOffset: true);
-  String _filter = '';
+  RxString filter = ''.obs;
+  final Debounce _debounce = Debounce(const Duration(milliseconds: 50));
 
-  String get title => _title;
+  final WebSocketChannel connection = WebSocketChannel.connect(
+    Uri.parse('ws://localhost:8220/'),
+  );
 
-  int get length => _steps.length;
+  @override
+  void onInit() {
+    connection.stream.listen(
+        (data) {
+          if (executionStatus.value != ExecutionStatus.progress) {
+            executionStatus.value = ExecutionStatus.progress;
+          }
 
-  set steps(List<Step> steps) {
-    _steps = steps;
-    notifyListeners();
-  }
+          Map<String, dynamic> json = jsonDecode(data);
 
-  set title(String title) {
-    _title = title;
-    notifyListeners();
-  }
+          if (json.containsKey('recap')) {
+            List<dynamic> recap = json['recap'] as List<dynamic>;
+            List<Step> steps = [];
+            List<String> outputs = [];
 
-  set filter(String filter) {
-    _filter = filter;
-    notifyListeners();
-  }
+            for (final recapStep in recap) {
+              StepStatus status = strToStepStatus(recapStep['status']);
 
-  ExecutionStatus get executionStatus => _executionStatus;
+              Step step = Step(
+                  title: recapStep['title'], status: status.obs, time: ''.obs);
 
-  set executionStatus(ExecutionStatus status) {
-    _executionStatus = status;
-    notifyListeners();
+              if (status == StepStatus.progress) {
+                title.value = recapStep['title'];
+              }
+
+              if (status == StepStatus.failure) {
+                executionStatus.value = ExecutionStatus.failure;
+              }
+
+              if (recapStep.containsKey('totalTime')) {
+                step.time.value = recapStep['totalTime'];
+              }
+
+              Map<String, dynamic> vars = {};
+
+              if (recapStep.containsKey('startVars')) {
+                vars = recapStep['startVars'] as Map<String, dynamic>;
+
+                vars.forEach((key, value) {
+                  step.startVars[key] = value as String;
+                });
+              }
+
+              if (recapStep.containsKey('endVars')) {
+                vars = recapStep['endVars'] as Map<String, dynamic>;
+
+                vars.forEach((key, value) {
+                  step.endVars[key] = value as String;
+                });
+              }
+
+              steps.add(step);
+              outputs.add(recapStep['output']);
+            }
+
+            this.steps.assignAll(steps);
+            stepOutputs.steps.assignAll(outputs);
+          }
+
+          if (json.containsKey('step') && json.containsKey('output')) {
+            var index = json['step'];
+            appendOutput(index, json['output']);
+          }
+
+          if (json.containsKey('step') && json.containsKey('status')) {
+            var index = json['step'];
+            StepStatus status = strToStepStatus(json['status']);
+
+            if (status == StepStatus.failure) {
+              executionStatus.value = ExecutionStatus.failure;
+            }
+
+            if (json.containsKey('totalTime')) {
+              updateStatus(
+                  stepIndex: index, status: status, time: json['totalTime']);
+            } else {
+              updateStatus(stepIndex: index, status: status);
+            }
+          }
+        },
+        onError: (error) => print(error),
+        onDone: () async {
+          await Future.delayed(const Duration(seconds: 1));
+
+          if (finished) {
+            if (executionStatus.value != ExecutionStatus.failure) {
+              executionStatus.value = ExecutionStatus.success;
+            }
+          } else {
+            executionStatus.value = ExecutionStatus.disconnected;
+          }
+        });
+
+    super.onInit();
+
+    print('Init finished.');
   }
 
   bool get finished {
-    for (Step step in _steps) {
+    for (Step step in steps) {
       if (step.time.isEmpty) {
         return false;
       }
@@ -48,51 +132,38 @@ class Pipeline with ChangeNotifier {
     return true;
   }
 
-  void toggleFollowExecution() {
-    followExecution = !followExecution;
-
-    notifyListeners();
-  }
-
-  Step operator [](int index) => _steps[index];
-
   void appendOutput(int stepIndex, String output) {
-    _steps[stepIndex].output += output;
+    stepOutputs.steps[stepIndex] += output;
 
-    if (followExecution) {
-      for (Step step in _steps) {
-        if (step.status == StepStatus.progress) {
-          selectedStep = _steps.indexOf(step);
+    if (followExecution.value) {
+      for (Step step in steps) {
+        if (step.status.value == StepStatus.progress) {
+          selectedStep.value = steps.indexOf(step);
         }
       }
-    }
 
-    notifyListeners();
-
-    if (followExecution) {
-      scrollC.jumpTo(scrollC.position.maxScrollExtent);
+      _debounce(() {
+        scrollC.jumpTo(scrollC.position.maxScrollExtent);
+      });
     }
   }
 
   void setTotalTime(int stepIndex, String time) {
-    _steps[stepIndex].time = time;
-    notifyListeners();
+    steps[stepIndex].time.value = time;
   }
 
   void updateStatus(
       {required int stepIndex, required StepStatus status, String time = ''}) {
-    _steps[stepIndex].status = status;
-    _steps[stepIndex].time = time;
+    steps[stepIndex].status.value = status;
+    steps[stepIndex].time.value = time;
 
     if (status == StepStatus.progress) {
-      _title = _steps[stepIndex].title;
+      title.value = steps[stepIndex].title;
 
-      if (followExecution) {
-        selectedStep = stepIndex;
+      if (followExecution.value) {
+        selectedStep.value = stepIndex;
       }
     }
-
-    notifyListeners();
   }
 
   StepStatus strToStepStatus(String str) {
@@ -116,14 +187,14 @@ class Pipeline with ChangeNotifier {
   }
 
   String filteredOuptut(String output) {
-    if (_filter.isEmpty) {
+    if (filter.value.isEmpty) {
       return output;
     }
 
     List<String> lines = output.split('\n');
     List<String> filteredLines = [];
 
-    RegExp regexp = RegExp(RegExp.escape(_filter), caseSensitive: false);
+    RegExp regexp = RegExp(RegExp.escape(filter.value), caseSensitive: false);
 
     for (String line in lines) {
       if (regexp.hasMatch(line)) {

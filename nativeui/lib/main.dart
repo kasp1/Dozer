@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:system_theme/system_theme.dart';
 import 'package:url_strategy/url_strategy.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:get/get.dart';
 
 import 'model/pipeline.dart';
 import 'model/theme.dart';
@@ -59,21 +60,19 @@ class Dozer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final pipeline = Get.put(Pipeline());
+
     return MultiProvider(
-      providers: [
-        ChangeNotifierProvider<AppTheme>(create: (_) => AppTheme()),
-        ChangeNotifierProvider<Pipeline>(create: (_) => Pipeline())
-      ],
+      providers: [ChangeNotifierProvider<AppTheme>(create: (_) => AppTheme())],
       builder: (context, _) {
         final appTheme = context.watch<AppTheme>();
-        final pipeline = context.watch<Pipeline>();
 
         return FluentApp(
-          title: pipeline.title,
+          title: pipeline.title.value,
           themeMode: appTheme.mode,
           debugShowCheckedModeBanner: false,
           color: appTheme.color,
-          darkTheme: ThemeData(
+          darkTheme: FluentThemeData(
             brightness: Brightness.dark,
             accentColor: appTheme.color,
             visualDensity: VisualDensity.standard,
@@ -81,7 +80,7 @@ class Dozer extends StatelessWidget {
               glowFactor: is10footScreen() ? 2.0 : 0.0,
             ),
           ),
-          theme: ThemeData(
+          theme: FluentThemeData(
             accentColor: appTheme.color,
             visualDensity: VisualDensity.standard,
             focusTheme: FocusThemeData(
@@ -104,7 +103,7 @@ class Dozer extends StatelessWidget {
             );
           },
           initialRoute: '/',
-          routes: {'/': (context) => const PipelineScreen()},
+          routes: {'/': (context) => PipelineScreen()},
         );
       },
     );

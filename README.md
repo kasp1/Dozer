@@ -251,7 +251,7 @@ In the `webui` folder, execute `node run serve`. The built files should appear u
 
 ### Develop
 
-The source code of the *NativeUI* is in the `nativeui` folder. Each time you want to test, execute `flutter run windows`, which will start the UI app in a hot-reload mode.
+The source code of the *NativeUI* is in the `nativeui` folder. Each time you want to test, execute `flutter run windows`, which will start the UI app in a hot-reload mode. If there is a Dozer process running in the background, the UI will automatically connect to it and display progress.
 
 ### Build
 
